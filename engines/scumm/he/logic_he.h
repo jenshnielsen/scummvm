@@ -174,6 +174,28 @@ public:
 
 	int versionID();
 	int32 dispatch(int op, int numArgs, int32 *args);
+
+private:
+	int op_1012();
+	int op_1050(int32 *args);
+	int op_1053();
+
+	// op_1050 loads court object data
+	enum CourtObjectType {
+		kObjectTypeBackboard = 1,
+		kObjectTypeRim = 2,
+		kObjectTypeOther = 3,
+		kObjectTypeFloor = 4
+	};
+
+	struct CourtObject {
+		Common::String name;
+		CourtObjectType type;
+		uint32 data[10];
+	};
+
+	Common::Array<CourtObject> _courtObjects;
+	uint32 _backboardObjectLeft, _backboardObjectRight;
 };
 
 class LogicHEmoonbase : public LogicHE {

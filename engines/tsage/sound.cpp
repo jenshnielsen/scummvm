@@ -2455,6 +2455,27 @@ void ASound::fade(int fadeDest, int fadeSteps, int fadeTicks, bool stopAfterFade
 	_sound.fade(fadeDest, fadeSteps, fadeTicks, stopAfterFadeFlag);
 }
 
+void ASound::fadeSound(int soundNum) {
+	play(soundNum, NULL, 0);
+	fade(127, 5, 1, false, NULL);
+}
+
+/*--------------------------------------------------------------------------*/
+
+ASoundExt::ASoundExt(): ASound() {
+	_soundNum = 0;
+}
+
+void ASoundExt::synchronize(Serializer &s) {
+	ASound::synchronize(s);
+	s.syncAsSint16LE(_soundNum);
+}
+
+void ASoundExt::signal() {
+	if (_soundNum != 0) {
+		fadeSound(_soundNum);
+	}
+}
 
 /*--------------------------------------------------------------------------*/
 
@@ -2804,8 +2825,6 @@ int AdlibSoundDriver::readBuffer(int16 *buffer, const int numSamples) {
 
 /*--------------------------------------------------------------------------*/
 
-const byte soundBlaster_group_data[] = { 3, 1, 1, 0, 0xff };
-
 
 SoundBlasterDriver::SoundBlasterDriver(): SoundDriver() {
 	_minVersion = 0x102;
@@ -2815,7 +2834,8 @@ SoundBlasterDriver::SoundBlasterDriver(): SoundDriver() {
 	_groupData.groupMask = 1;
 	_groupData.v1 = 0x3E;
 	_groupData.v2 = 0;
-	_groupData.pData = &soundBlaster_group_data[0];
+	static byte const group_data[] = { 3, 1, 1, 0, 0xff };
+	_groupData.pData = group_data;
 
 	_mixer = _vm->_mixer;
 	_sampleRate = _mixer->getOutputRate();

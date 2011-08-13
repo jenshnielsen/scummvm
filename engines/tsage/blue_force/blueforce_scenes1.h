@@ -20,71 +20,52 @@
  *
  */
 
-#ifndef TSAGE_RINGWORLD_SCENES4_H
-#define TSAGE_RINGWORLD_SCENES4_H
+#ifndef TSAGE_BLUEFORCE_SCENES1_H
+#define TSAGE_BLUEFORCE_SCENES1_H
 
 #include "common/scummsys.h"
-#include "tsage/core.h"
+#include "tsage/blue_force/blueforce_logic.h"
 #include "tsage/converse.h"
-#include "tsage/ringworld_logic.h"
+#include "tsage/events.h"
+#include "tsage/core.h"
+#include "tsage/scenes.h"
+#include "tsage/globals.h"
+#include "tsage/sound.h"
 
 namespace tSage {
 
-class Scene3500 : public Scene {
+class BF_Scene100: public Scene {
 	/* Actions */
-	class Action1 : public Action {
+	class Action1: public ActionExt {
+	private:
+		void setTextStrings(const Common::String &msg1, const Common::String &msg2, Action *action);
 	public:
+		SceneText _sceneText1, _sceneText2;
+		int _textHeight;
+
+		virtual Common::String getClassName() { return "BF100Action1"; }
+		virtual void synchronize(Serializer &s) {
+			ActionExt::synchronize(s);
+			s.syncAsSint16LE(_textHeight);
+		}
 		virtual void signal();
 	};
-	class Action2 : public Action {
+	class Action2: public ActionExt {
 	public:
+		virtual Common::String getClassName() { return "BF100Action2"; }
 		virtual void signal();
 	};
 public:
-	SpeakerSText _speakerSText;
-	SpeakerMText _speakerMText;
-	SpeakerQText _speakerQText;
+	SequenceManager _sequenceManager;
 	Action1 _action1;
 	Action2 _action2;
+	ScenePalette _scenePalette;
+	SceneObjectExt2 _object1, _object2, _object3, _object4, _object5;
+	int _index;
 
+	BF_Scene100();
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
-};
-
-class Scene3700 : public Scene {
-	/* Custom classes */
-	class Viewer : public SceneObject {
-	public:
-		Visage _images1;
-		Visage _images2;
-
-		int _frameList[4];
-		int _percentList[4];
-		bool _active;
-		int _countdownCtr;
-
-		Viewer();
-		virtual Common::String getClassName() { return "Viewer"; }
-		virtual void synchronize(Serializer &s);
-		virtual void dispatch();
-		virtual void reposition();
-		virtual void draw();
-	};
-
-	/* Actions */
-	class Action1 : public Action {
-	public:
-		virtual void signal();
-	};
-public:
-	Viewer _viewer;
-	Action1 _action1;
-	SceneObject _hotspot1, _hotspot2;
-	SpeakerSText _speakerSText;
-	SpeakerMText _speakerMText;
-	SpeakerMR _speakerMR;
-	ASound _soundHandler;
-
-	virtual void postInit(SceneObjectList *OwnerList = NULL);
+	virtual void signal();
 };
 
 } // End of namespace tSage

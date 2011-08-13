@@ -22,7 +22,7 @@
 
 #include "tsage/scenes.h"
 #include "tsage/globals.h"
-#include "tsage/ringworld_logic.h"
+#include "tsage/ringworld/ringworld_logic.h"
 #include "tsage/tsage.h"
 #include "tsage/saveload.h"
 
@@ -499,6 +499,16 @@ void Scene::setZoomPercents(int yStart, int minPercent, int yEnd, int maxPercent
 
 	while (yEnd < 256)
 		_zoomPercents[yEnd++] = minPercent;
+}
+
+byte *Scene::preloadVisage(int resNum) {
+	// This isn't being used, since modern systems can load the data much quicker, and in any case
+	// visage data is specially loaded into the Visage class, and the resources discarded from memory.
+	return NULL;
+/*
+	assert(!_v52C9F);
+	return _resourceManager->getResource(RES_VISAGE, resNum, 9999, false);
+*/
 }
 
 /*--------------------------------------------------------------------------*/
