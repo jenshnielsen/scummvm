@@ -25,7 +25,9 @@
 #include "tsage/tsage.h"
 #include "tsage/staticres.h"
 
-namespace tSage {
+namespace TsAGE {
+
+namespace Ringworld {
 
 /*--------------------------------------------------------------------------
  * Scene 10 - Kziniti Palace (Introduction)
@@ -3342,4 +3344,6 @@ void Scene6100::showMessage(const Common::String &msg, int color, Action *action
 	}
 }
 
-} // End of namespace tSage
+} // End of namespace Ringworld
+
+} // End of namespace TsAGE

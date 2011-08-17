@@ -29,7 +29,13 @@
 #include "tsage/scenes.h"
 #include "tsage/globals.h"
 
-namespace tSage {
+#define BF_INTERFACE_Y 168
+
+namespace TsAGE {
+
+namespace BlueForce {
+
+using namespace TsAGE;
 
 class BlueForceGame: public Game {
 public:
@@ -37,6 +43,57 @@ public:
 	virtual Scene *createScene(int sceneNumber);
 };
 
-} // End of namespace tSage
+#define OBJ_ARRAY_SIZE 10
+class ObjArray: public EventHandler {
+public:
+	EventHandler *_objList[OBJ_ARRAY_SIZE];
+	bool _inUse;
+public:
+	ObjArray();
+	void clear();
+
+	virtual Common::String getClassName() { return "ObjArray"; }
+	virtual void synchronize(Serializer &s);
+	virtual void process(Event &event);
+	virtual void dispatch();
+};
+
+class SceneExt: public Scene {
+public:
+	ObjArray _objArray1, _objArray2;
+	int _field372;
+	int _field37A;
+	EventHandler *_field37C;
+
+	Rect _v51C34;
+public:
+	SceneExt();
+
+	virtual Common::String getClassName() { return "SceneExt"; }
+	virtual void postInit(SceneObjectList *OwnerList = NULL);
+	virtual void process(Event &event);
+	virtual void dispatch();
+	virtual void loadScene(int sceneNum);
+	virtual void proc13() { warning("TODO: SceneExt::proc13"); }
+};
+
+class GameScene: public SceneExt {
+public:
+	int _field412;
+	int _field794;
+public:
+	GameScene();
+
+	virtual void postInit(SceneObjectList *OwnerList = NULL);
+	virtual void remove();
+};
+
+class BlueAnimatedSpeaker: public Speaker {
+public:
+};
+
+} // End of namespace BlueForce
+
+} // End of namespace TsAGE
 
 #endif

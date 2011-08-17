@@ -1,11 +1,15 @@
 MODULE := engines/dreamweb
 
 MODULE_OBJS := \
+	backdrop.o \
 	console.o \
 	detection.o \
 	dreamweb.o \
 	dreamgen.o \
-	stubs.o
+	print.o \
+	sprite.o \
+	stubs.o \
+	vgagrafx.o
 
 # This module can be built as a plugin
 ifeq ($(ENABLE_DREAMWEB), DYNAMIC_PLUGIN)

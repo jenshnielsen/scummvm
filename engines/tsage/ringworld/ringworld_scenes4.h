@@ -28,7 +28,11 @@
 #include "tsage/converse.h"
 #include "tsage/ringworld/ringworld_logic.h"
 
-namespace tSage {
+namespace TsAGE {
+
+namespace Ringworld {
+
+using namespace TsAGE;
 
 class Scene3500 : public Scene {
 	/* Actions */
@@ -87,6 +91,8 @@ public:
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
 };
 
-} // End of namespace tSage
+} // End of namespace Ringworld
+
+} // End of namespace TsAGE
 
 #endif

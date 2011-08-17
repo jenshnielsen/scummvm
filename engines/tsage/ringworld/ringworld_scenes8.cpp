@@ -26,7 +26,9 @@
 #include "tsage/tsage.h"
 #include "tsage/staticres.h"
 
-namespace tSage {
+namespace TsAGE {
+
+namespace Ringworld {
 
 void NamedHotspotMult::synchronize(Serializer &s) {
 	SceneHotspot::synchronize(s);
@@ -2542,4 +2544,6 @@ void Scene7700::synchronize(Serializer &s) {
 	}
 }
 
-} // End of namespace tSage
+} // End of namespace Ringworld
+
+} // End of namespace TsAGE

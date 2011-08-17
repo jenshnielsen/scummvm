@@ -30,7 +30,11 @@
 #include "tsage/scenes.h"
 #include "tsage/globals.h"
 
-namespace tSage {
+namespace TsAGE {
+
+namespace Ringworld {
+
+using namespace TsAGE;
 
 class SceneObject9150 : public SceneObject {
 public:
@@ -526,7 +530,8 @@ public:
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
 };
 
+} // End of namespace Ringworld
 
-} // End of namespace tSage
+} // End of namespace TsAGE
 
 #endif

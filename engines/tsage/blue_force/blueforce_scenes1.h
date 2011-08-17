@@ -32,15 +32,27 @@
 #include "tsage/globals.h"
 #include "tsage/sound.h"
 
-namespace tSage {
+namespace TsAGE {
 
-class BF_Scene100: public Scene {
+namespace BlueForce {
+
+using namespace TsAGE;
+
+class Scene100: public SceneExt {
+	/* Support classes */
+	class Text: public SceneText {
+	public:
+		virtual Common::String getClassName() { return "BF100Text"; }
+		virtual void dispatch();
+	};
+
 	/* Actions */
 	class Action1: public ActionExt {
 	private:
 		void setTextStrings(const Common::String &msg1, const Common::String &msg2, Action *action);
 	public:
-		SceneText _sceneText1, _sceneText2;
+		Text _sceneText1;
+		SceneText _sceneText2;
 		int _textHeight;
 
 		virtual Common::String getClassName() { return "BF100Action1"; }
@@ -52,7 +64,6 @@ class BF_Scene100: public Scene {
 	};
 	class Action2: public ActionExt {
 	public:
-		virtual Common::String getClassName() { return "BF100Action2"; }
 		virtual void signal();
 	};
 public:
@@ -63,11 +74,59 @@ public:
 	SceneObjectExt2 _object1, _object2, _object3, _object4, _object5;
 	int _index;
 
-	BF_Scene100();
+	Scene100();
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
 	virtual void signal();
 };
 
-} // End of namespace tSage
+class Scene109: public GameScene {
+	/* Actions */
+	class Action1: public Action {
+	public:
+		virtual void signal();
+	};
+	class Action2: public Action {
+	public:
+		virtual void signal();
+	};
+	class Action3: public Action {
+	public:
+		virtual void signal();
+	};
+
+	/* Texts */
+	class Text: public SceneText {
+	public:
+		Action *_action;
+		uint32 _frameNumber;
+		int _diff;
+	public:
+		Text();
+		void setup(const Common::String &msg, Action *action);
+
+		virtual Common::String getClassName() { return "BF109Text"; }
+		virtual void synchronize(Serializer &s);
+		virtual void dispatch();
+	};
+public:
+	SequenceManager _sequenceManager1, _sequenceManager2, _sequenceManager3;
+	SequenceManager _sequenceManager4, _sequenceManager5, _sequenceManager6;
+	SequenceManager _sequenceManager7, _sequenceManager8;
+	SceneObject _object1, _object2, _protaginist2, _protaginist1, _object5;
+	SceneObject _drunk, _object7, _bartender, _object9, _object10;
+	Text _text;
+	BlueAnimatedSpeaker _speaker;
+	Action1 _action1;
+	Action _action2, _action3;
+public:
+	Scene109();
+
+	virtual void postInit(SceneObjectList *OwnerList = NULL);
+	virtual void signal();
+};
+
+} // End of namespace BlueForce
+
+} // End of namespace TsAGE
 
 #endif

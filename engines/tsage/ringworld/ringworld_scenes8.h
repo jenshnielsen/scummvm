@@ -30,7 +30,11 @@
 #include "tsage/scenes.h"
 #include "tsage/globals.h"
 
-namespace tSage {
+namespace TsAGE {
+
+namespace Ringworld {
+
+using namespace TsAGE;
 
 class NamedHotspotMult : public SceneHotspot {
 public:
@@ -485,6 +489,8 @@ public:
 	virtual void synchronize(Serializer &s);
 };
 
-} // End of namespace tSage
+} // End of namespace Ringworld
+
+} // End of namespace TsAGE
 
 #endif

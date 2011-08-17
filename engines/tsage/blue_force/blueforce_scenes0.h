@@ -32,9 +32,13 @@
 #include "tsage/globals.h"
 #include "tsage/sound.h"
 
-namespace tSage {
+namespace TsAGE {
 
-class BF_Scene20 : public Scene {
+namespace BlueForce {
+
+using namespace TsAGE;
+
+class Scene20 : public SceneExt {
 	/* Actions */
 	class Action1 : public Action {
 	private:
@@ -51,6 +55,33 @@ public:
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
 };
 
-} // End of namespace tSage
+class Scene50: public SceneExt {
+	class Tooltip: public SavedObject {
+	public:
+		Rect _bounds;
+		char _msg[80];
+		int _field60;
+		int _field62;
+	public:
+		Tooltip();
+
+		virtual Common::String getClassName() { return "Scene50_Tooltip"; }
+		virtual void synchronize(Serializer &s);
+	};
+	class Tooltip2: public Action {
+	public:
+		Tooltip2(): Action() {}
+
+		virtual Common::String getClassName() { return "Scene50_Tooltip2"; }
+		virtual void signal();
+		virtual void dispatch();
+	};
+public:
+
+};
+
+} // End of namespace BlueForce
+
+} // End of namespace TsAGE
 
 #endif

@@ -27,11 +27,13 @@
 #include "tsage/tsage.h"
 #include "tsage/staticres.h"
 
-namespace tSage {
+namespace TsAGE {
+
+namespace BlueForce {
 
 void BlueForceGame::start() {
 	// Start the game
-	_globals->_sceneManager.changeScene(20);
+	_globals->_sceneManager.changeScene(100);
 
 	_globals->_events.setCursor(CURSOR_WALK);
 }
@@ -41,15 +43,17 @@ Scene *BlueForceGame::createScene(int sceneNumber) {
 	/* Scene Group #0 */
 	case 20:
 		// Tsunami Title Screen
-		return new BF_Scene20();
+		return new Scene20();
 	case 50:
 	case 60:
 		error("Scene group 0 not implemented");
 	/* Scene Group #1 */
 	case 100:
 		// Tsnunami Title Screen #2
-		return new BF_Scene100();
+		return new Scene100();
 	case 109:
+		// Introduction Bar Room
+		return new Scene109();
 	case 110:
 	case 114:
 	case 115:
@@ -125,4 +129,127 @@ Scene *BlueForceGame::createScene(int sceneNumber) {
 	}
 }
 
-} // End of namespace tSage
+/*--------------------------------------------------------------------------*/
+
+ObjArray::ObjArray(): EventHandler() {
+	_inUse = false;
+	clear();
+}
+
+void ObjArray::clear() {
+	for (int i = 0; i < OBJ_ARRAY_SIZE; ++i)
+		_objList[i] = NULL;
+}
+
+void ObjArray::synchronize(Serializer &s) {
+	EventHandler::synchronize(s);
+	for (int i = 0; i < OBJ_ARRAY_SIZE; ++i)
+		SYNC_POINTER(_objList[i]);	
+}
+
+void ObjArray::process(Event &event) {
+	if (_inUse)
+		error("Array error");
+	_inUse = true;
+
+	for (int i = 0; i < OBJ_ARRAY_SIZE; ++i) {
+		if (_objList[i])
+			_objList[i]->process(event);
+	}
+
+	_inUse = false;
+}
+
+void ObjArray::dispatch() {
+	if (_inUse)
+		error("Array error");
+	_inUse = true;
+
+	for (int i = 0; i < OBJ_ARRAY_SIZE; ++i) {
+		if (_objList[i])
+			_objList[i]->dispatch();
+	}
+
+	_inUse = false;
+}
+
+/*--------------------------------------------------------------------------*/
+
+SceneExt::SceneExt(): Scene() {
+	warning("TODO: dword_503AA/dword_503AE/dword_53030");
+
+	_field372 = 0;
+	_field37C = NULL;
+}
+
+void SceneExt::postInit(SceneObjectList *OwnerList) {
+	Scene::postInit(OwnerList);
+	if (BF_GLOBALS._v4CEA2) {
+		// Blank out the bottom portion of the screen
+		BF_GLOBALS._interfaceY = BF_INTERFACE_Y;
+
+		Rect r(0, BF_INTERFACE_Y, SCREEN_WIDTH, SCREEN_HEIGHT);
+		BF_GLOBALS.gfxManager().getSurface().fillRect(r, 0);
+	}
+}
+
+void SceneExt::process(Event &event) {
+	_objArray2.process(event);
+	if (!event.handled)
+		Scene::process(event);
+}
+
+void SceneExt::dispatch() {
+	_objArray1.dispatch();
+
+	if (_field37A) {
+		if ((--_field37A == 0) && BF_GLOBALS._v4CEA2) {
+			if (BF_GLOBALS._v4E238 && (BF_GLOBALS._v4CF9E == 1)) {
+				warning("sub_1B052");
+			}
+			
+			_field37A = 0;
+		}
+	}
+
+	Scene::dispatch();
+}
+
+void SceneExt::loadScene(int sceneNum) {
+	Scene::loadScene(sceneNum);
+	
+	_v51C34.top = 0;
+	_v51C34.bottom = 300;
+}
+
+/*--------------------------------------------------------------------------*/
+
+GameScene::GameScene() {
+
+}
+
+void GameScene::postInit(SceneObjectList *OwnerList) {
+	_field794 = 0;
+	_field412 = 1;
+	SceneExt::postInit(OwnerList);
+}
+
+void GameScene::remove() {
+	SceneExt::remove();
+	if (_field794 == 1) {
+		for (SynchronizedList<SceneObject *>::iterator i = BF_GLOBALS._sceneObjects->begin();
+				i != BF_GLOBALS._sceneObjects->end(); ++i)
+			(*i)->remove();
+		
+		BF_GLOBALS._sceneObjects->draw();
+		BF_GLOBALS._scenePalette.loadPalette(2);
+		BF_GLOBALS._v51C44 = 1;
+		BF_GLOBALS._v51C42 = 1;
+	}
+
+	BF_GLOBALS._scenePalette._field412 = 1;
+}
+
+} // End of namespace BlueForce
+
+} // End of namespace TsAGE

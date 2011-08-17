@@ -20,21 +20,30 @@
  *
  */
 
+#include "common/endian.h"
+
 struct Sprite {
-	uint16 updateCallback;
+	uint16 _updateCallback;
+	uint16 updateCallback() const { return READ_LE_UINT16(&_updateCallback); }
+	void setUpdateCallback(uint16 v) { WRITE_LE_UINT16(&_updateCallback, v); }
 	uint16 w2;
 	uint16 w4;
-	uint16 w6;
+	uint16 _frameData;
+	uint16 frameData() const { return READ_LE_UINT16(&_frameData); }
+	void setFrameData(uint16 v) { WRITE_LE_UINT16(&_frameData, v); }
 	uint16 w8;
 	uint8  x;
 	uint8  y;
 	uint16 w12;
 	uint8  b14;
 	uint8  b15;
-	uint16 w16;
+	uint8  b16;
+	uint8  b17;
 	uint8  delay;
 	uint8  frame;
-	uint16 obj_data;
+	uint16 _objData;
+	uint16 objData() const { return READ_LE_UINT16(&_objData); }
+	void setObjData(uint16 v) { WRITE_LE_UINT16(&_objData, v); }
 	uint8  b22;
 	uint8  priority;
 	uint16 w24;
@@ -51,7 +60,7 @@ struct ObjData {
 	uint8 b2;
 	uint8 b3;
 	uint8 b4;
-	uint8 b5;
+	uint8 priority;
 	uint8 b6;
 	uint8 delay;
 	uint8 type;
@@ -64,5 +73,124 @@ struct ObjData {
 	uint8 b15;
 	uint8 b16;
 	uint8 b17;
-	uint8 b18[256]; // NB: Don't know the size yet
+	uint8 b18[13]; // NB: Don't know the size yet
+	uint8 b31;
+	uint8 b32;
+	uint8 b33;
+	uint8 b34;
+	uint8 b35;
+	uint8 b36;
+	uint8 b37;
+	uint8 b38;
+	uint8 b39;
+	uint8 b40;
+	uint8 b41;
+	uint8 b42;
+	uint8 b43;
+	uint8 b44;
+	uint8 b45;
+	uint8 b46;
+	uint8 b47;
+	uint8 b48;
+	uint8 b49;
+	uint8 b50;
+	uint8 b51;
+	uint8 b52;
+	uint8 b53;
+	uint8 b54;
+	uint8 b55;
+	uint8 b56;
+	uint8 b57;
+	uint8 b58[5];
+	uint8 b63;
 };
+
+struct ObjPos {
+	uint8 xMin;
+	uint8 yMin;
+	uint8 xMax;
+	uint8 yMax;
+	uint8 index;
+};
+
+struct Frame {
+	uint8  width;
+	uint8  height;
+	uint16 _ptr;
+	uint16 ptr() const { return READ_LE_UINT16(&_ptr); }
+	void setPtr(uint16 v) { WRITE_LE_UINT16(&_ptr, v); }
+	uint8  x;
+	uint8  y;
+};
+
+struct Reel {
+	uint8 frame_lo;
+	uint8 frame_hi;
+	uint16 frame() const { return READ_LE_UINT16(&frame_lo); }
+	void setFrame(uint16 v) { WRITE_LE_UINT16(&frame_lo, v); }
+	uint8 x;
+	uint8 y;
+	uint8 b4;
+};
+
+struct ReelRoutine {
+	uint8 reallocation;
+	uint8 mapX;
+	uint8 mapY;
+	uint8 b3;
+	uint8 b4;
+	uint8 b5;
+	uint8 b6;
+	uint8 b7;
+};
+
+struct People {
+	uint8 b0;
+	uint8 b1;
+	uint16 w0() const { return READ_LE_UINT16(&b0); }
+	void setW0(uint16 v) { WRITE_LE_UINT16(&b0, v); }
+	uint8 b2;
+	uint8 b3;
+	uint16 w2() const { return READ_LE_UINT16(&b2); }
+	void setW2(uint16 v) { WRITE_LE_UINT16(&b2, v); }
+	uint8 b4;
+
+};
+
+struct Room {
+	uint8 name[10];
+	uint8 b10;
+	uint8 b11;
+	uint8 b12;
+	uint8 roomsSample;
+	uint8 b14;
+	uint8 mapX;
+	uint8 mapY;
+	uint8 b17;
+	uint8 b18;
+	uint8 b19;
+	uint8 liftFlag;
+	uint8 b21;
+	uint8 b22;
+	uint8 countToOpen;
+	uint8 liftPath;
+	uint8 doorPath;
+	uint8 b26;
+	uint8 b27;
+	uint8 b28;
+	uint8 b29;
+	uint8 b30;
+	uint8 b31;
+};
+
+struct Rain {
+	uint8 x;
+	uint8 y;
+	uint8 size;
+	uint8 w3_lo;
+	uint8 w3_hi;
+	uint16 w3() const { return READ_LE_UINT16(&w3_lo); }
+	void setW3(uint16 v) { WRITE_LE_UINT16(&w3_lo, v); }
+	uint8 b5;
+};
+

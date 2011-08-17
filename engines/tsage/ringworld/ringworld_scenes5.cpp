@@ -26,7 +26,9 @@
 #include "tsage/tsage.h"
 #include "tsage/staticres.h"
 
-namespace tSage {
+namespace TsAGE {
+
+namespace Ringworld {
 
 /*--------------------------------------------------------------------------
  * Scene 4000 - Village
@@ -3520,7 +3522,7 @@ Scene4250::Scene4250() :
 		_hotspot7(0, CURSOR_LOOK, 4250, 0, LIST_END) {
 }
 
-void Scene4250::postInit(tSage::SceneObjectList *OwnerList) {
+void Scene4250::postInit(TsAGE::SceneObjectList *OwnerList) {
 	loadScene(4250);
 	Scene::postInit();
 	setZoomPercents(160, 90, 185, 100);
@@ -4438,4 +4440,6 @@ void Scene4301::dispatch() {
 	}
 }
 
-} // End of namespace tSage
+} // End of namespace Ringworld
+
+} // End of namespace TsAGE

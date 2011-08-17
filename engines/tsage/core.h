@@ -34,7 +34,7 @@
 #include "tsage/resources.h"
 #include "tsage/saveload.h"
 
-namespace tSage {
+namespace TsAGE {
 
 #define MAX_FLAGS 256
 
@@ -437,7 +437,10 @@ public:
 };
 
 enum AnimateMode {ANIM_MODE_NONE = 0, ANIM_MODE_1 = 1, ANIM_MODE_2 = 2, ANIM_MODE_3 = 3,
-		ANIM_MODE_4 = 4, ANIM_MODE_5 = 5, ANIM_MODE_6 = 6, ANIM_MODE_7 = 7, ANIM_MODE_8 = 8};
+		ANIM_MODE_4 = 4, ANIM_MODE_5 = 5, ANIM_MODE_6 = 6, ANIM_MODE_7 = 7, ANIM_MODE_8 = 8,
+		// Introduced in Blue Force
+		ANIM_MODE_9 = 9
+};
 
 class SceneObject;
 
@@ -468,6 +471,7 @@ public:
 	virtual ~SceneObjectWrapper() {}
 
 	void setSceneObject(SceneObject *so);
+	void check();
 
 	virtual void synchronize(Serializer &s);
 	virtual Common::String getClassName() { return "SceneObjectWrapper"; }
@@ -556,6 +560,10 @@ public:
 	virtual void draw();
 	virtual void proc19() {}
 	virtual void updateScreen();
+	// New methods introduced by Blue FOrce
+	virtual void updateAngle(SceneObject *sceneObj);
+	virtual void changeAngle(int angle);
+
 	void setup(int visage, int stripFrameNum, int frameNum, int posX, int posY, int priority);
 };
 
@@ -706,7 +714,7 @@ public:
 	SynchronizedList<SceneObject *>::iterator begin() { return _objList.begin(); }
 	SynchronizedList<SceneObject *>::iterator end() { return _objList.end(); }
 	int size() const { return _objList.size(); }
-	bool contains(SceneObject *sceneObj) { return tSage::contains(_objList, sceneObj); }
+	bool contains(SceneObject *sceneObj) { return TsAGE::contains(_objList, sceneObj); }
 	void push_back(SceneObject *sceneObj) { _objList.push_back(sceneObj); }
 	void push_front(SceneObject *sceneObj) { _objList.push_front(sceneObj); }
 	void remove(SceneObject *sceneObj) {
@@ -851,6 +859,6 @@ public:
 	static void saveListener(Serializer &ser);
 };
 
-} // End of namespace tSage
+} // End of namespace TsAGE
 
 #endif
