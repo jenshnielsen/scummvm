@@ -23,6 +23,7 @@
 #include "dreamweb/dreamweb.h"
 #include "engines/util.h"
 #include "graphics/surface.h"
+#include "common/config-manager.h"
 
 namespace DreamGen {
 
@@ -49,13 +50,30 @@ void DreamGenContext::dreamweb() {
 
 	bool firstLoop = true;
 
+	int savegameId = Common::ConfigManager::instance().getInt("save_slot");
+
 	while (true) {
 
 		scanfornames();
 
 		bool startNewGame = true;
 
-		if (al == 0 && firstLoop) {
+		if (firstLoop && savegameId >= 0) {
+
+			// loading a savegame requested from launcher/command line
+
+			cls();
+			setmode();
+			loadpalfromiff();
+			clearpalette();
+
+			ax = savegameId;
+			doload();
+			worktoscreen();
+			fadescreenup();
+			startNewGame = false;
+
+		} else if (al == 0 && firstLoop) {
 
 			// no savegames found, and we're not restarting.
 
@@ -576,8 +594,6 @@ void DreamGenContext::dosreturn() {
 }
 
 void DreamGenContext::set16colpalette() {
-	//fixme: this is a bit hackish, set16colpalette called after initialization and nearly before main loop.
-	engine->enableSavingOrLoading();
 }
 
 void DreamGenContext::mode640x480() {
@@ -606,24 +622,6 @@ void DreamGenContext::eraseoldobs() {
 			memset(&sprite, 0xff, sizeof(Sprite));
 		}
 	}
-}
-
-void DreamGenContext::turnpathonCPP(uint8 param) {
-	al = param;
-	push(es);
-	push(bx);
-	turnpathon();
-	bx = pop();
-	es = pop();
-}
-
-void DreamGenContext::turnpathoffCPP(uint8 param) {
-	al = param;
-	push(es);
-	push(bx);
-	turnpathoff();
-	bx = pop();
-	es = pop();
 }
 
 void DreamGenContext::modifychar() {
@@ -667,16 +665,6 @@ void DreamGenContext::cancelch1() {
 	data.word(kCh1blockstocopy) = 0;
 	data.byte(kCh1playing) = 255;
 	engine->stopSound(1);
-}
-
-void DreamGenContext::getroomspaths() {
-	es = data.word(kReels);
-	bx = data.byte(kRoomnum) * 144;
-}
-
-uint8 *DreamGenContext::getroomspathsCPP() {
-	void *result = segRef(data.word(kReels)).ptr(data.byte(kRoomnum) * 144, 144);
-	return (uint8 *)result;
 }
 
 void DreamGenContext::makebackob(ObjData *objData) {
@@ -852,12 +840,10 @@ void DreamGenContext::fillspace() {
 void DreamGenContext::dealwithspecial(uint8 firstParam, uint8 secondParam) {
 	uint8 type = firstParam - 220;
 	if (type == 0) {
-		al = secondParam;
-		placesetobject();
+		placesetobject(secondParam);
 		data.byte(kHavedoneobs) = 1;
 	} else if (type == 1) {
-		al = secondParam;
-		removesetobject();
+		removesetobject(secondParam);
 		data.byte(kHavedoneobs) = 1;
 	} else if (type == 2) {
 		al = secondParam;
@@ -920,45 +906,18 @@ void DreamGenContext::deltextline() {
 	multiput(segRef(data.word(kBuffers)).ptr(kTextunder, 0), x, y, kUndertextsizex, kUndertextsizey);
 }
 
-void DreamGenContext::autosetwalk() {
-	al = data.byte(kManspath);
-	if (data.byte(kFinaldest) == al)
-		return;
-	const uint8 *roomsPaths = getroomspathsCPP();
-	checkdest(roomsPaths);
-	data.word(kLinestartx) = roomsPaths[data.byte(kManspath) * 8 + 0] - 12;
-	data.word(kLinestarty) = roomsPaths[data.byte(kManspath) * 8 + 1] - 12;
-	data.word(kLineendx) = roomsPaths[data.byte(kDestination) * 8 + 0] - 12;
-	data.word(kLineendy) = roomsPaths[data.byte(kDestination) * 8 + 1] - 12;
-	bresenhams();
-	if (data.byte(kLinedirection) != 0) {
-		data.byte(kLinepointer) = data.byte(kLinelength) - 1;
-		data.byte(kLinedirection) = 1;
-		return;
-	}
-	data.byte(kLinepointer) = 0;
+void DreamGenContext::commandonly() {
+	commandonly(al);	
 }
 
-void DreamGenContext::checkdest(const uint8 *roomsPaths) {
-	const uint8 *p = roomsPaths + 12 * 8;
-	ah = data.byte(kManspath) << 4;
-	al = data.byte(kDestination);
-	uint8 destination = data.byte(kDestination);
-	for (size_t i = 0; i < 24; ++i) {
-		dh = p[0] & 0xf0;
-		dl = p[0] & 0x0f;
-		if (ax == dx) {
-			data.byte(kDestination) = p[1] & 0x0f;
-			return;
-		}
-		dl = (p[0] & 0xf0) >> 4;
-		dh = (p[0] & 0x0f) << 4;
-		if (ax == dx) {
-			destination = p[1] & 0x0f;
-		}
-		p += 2;
-	}
-	data.byte(kDestination) = destination;
+void DreamGenContext::commandonly(uint8 command) {
+	deltextline();
+	uint16 index = command * 2;
+	uint16 offset = kTextstart + segRef(data.word(kCommandtext)).word(index);
+	uint16 y = data.word(kTextaddressy);
+	const uint8 *string = segRef(data.word(kCommandtext)).ptr(offset, 0);
+	printdirect(&string, data.word(kTextaddressx), &y, data.byte(kTextlen), (bool)(data.byte(kTextlen) & 1));
+	data.byte(kNewtextline) = 1;
 }
 
 void DreamGenContext::checkifperson() {
@@ -1066,6 +1025,110 @@ void DreamGenContext::showpanel() {
 	uint8 width, height;
 	showframe(frame, 72, 0, 19, 0, &width, &height);
 	showframe(frame, 192, 0, 19, 0, &width, &height);
+}
+
+void DreamGenContext::blocknametext() {
+	commandwithob(0, data.byte(kCommandtype), data.byte(kCommand));
+}
+
+void DreamGenContext::personnametext() {
+	commandwithob(2, data.byte(kCommandtype), data.byte(kCommand) & 127);
+}
+
+void DreamGenContext::walktotext() {
+	commandwithob(3, data.byte(kCommandtype), data.byte(kCommand));
+}
+
+void DreamGenContext::findormake() {
+	uint8 b0 = al;
+	uint8 b2 = cl;
+	uint8 b3 = ch;
+	findormake(b0, b2, b3);
+}
+
+void DreamGenContext::findormake(uint8 index, uint8 value, uint8 type) {
+	Change *change = (Change *)segRef(data.word(kBuffers)).ptr(kListofchanges, sizeof(Change));
+	while (true) {
+		if (change->index == 0xff) {
+			change->index = index;
+			change->location = data.byte(kReallocation);
+			change->value = value;
+			change->type = type;
+			return;
+		}
+		if ((index == change->index) && (data.byte(kReallocation) == change->location) && (type == change->type)) {
+			change->value = value;
+			return;
+		}
+		++change;
+	}
+}
+
+void DreamGenContext::setallchanges() {
+	Change *change = (Change *)segRef(data.word(kBuffers)).ptr(kListofchanges, sizeof(Change));
+	while (change->index != 0xff) {
+		if (change->location == data.byte(kReallocation))
+			dochange(change->index, change->value, change->type);
+		++change;
+	}
+}
+
+FreeObject *DreamGenContext::getfreead(uint8 index) {
+	return (FreeObject *)segRef(data.word(kFreedat)).ptr(0, 0) + index;
+}
+
+ObjData *DreamGenContext::getsetad(uint8 index) {
+	return (ObjData *)segRef(data.word(kSetdat)).ptr(0, 0) + index;
+}
+
+void DreamGenContext::dochange() {
+	dochange(al, cl, ch);
+}
+
+void DreamGenContext::dochange(uint8 index, uint8 value, uint8 type) {
+	if (type == 0) { //object
+		getsetad(index)->b58[0] = value;
+	} else if (type == 1) { //freeobject
+		FreeObject *freeObject = getfreead(index);
+		if (freeObject->b2 == 0xff)
+			freeObject->b2 = value;
+	} else { //path
+		bx = kPathdata + (type - 100) * 144 + index * 8;
+		es = data.word(kReels);
+		es.byte(bx+6) = value;
+	}
+}
+
+void DreamGenContext::deletetaken() {
+	ds = data.word(kExtras);
+	si = kExdata;
+	FreeObject *freeObjects = (FreeObject *)segRef(data.word(kFreedat)).ptr(0, 0);
+	for(size_t i = 0; i < kNumexobjects; ++i) {
+		uint8 location = ds.byte(si+11);
+		if (location == data.byte(kReallocation)) {
+			uint8 index = ds.byte(si+1);
+			freeObjects[index].b2 = 254;
+		}
+		si += 16;
+	}
+}
+
+void DreamGenContext::placesetobject() {
+	placesetobject(al);
+}
+
+void DreamGenContext::placesetobject(uint8 index) {
+	findormake(index, 0, 0);
+	getsetad(index)->b58[0] = 0;
+}
+
+void DreamGenContext::removesetobject() {
+	removesetobject(al);
+}
+
+void DreamGenContext::removesetobject(uint8 index) {
+	findormake(index, 0xff, 0);
+	getsetad(index)->b58[0] = 0xff;
 }
 
 bool DreamGenContext::isCD() {

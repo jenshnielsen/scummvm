@@ -71,6 +71,14 @@ SoundManager::~SoundManager() {
 //		g_system->getTimerManager()->removeTimerProc(_sfUpdateCallback);
 	}
 
+	// Free any allocated voice type structures
+	for (int idx = 0; idx < SOUND_ARR_SIZE; ++idx) {
+		if (sfManager()._voiceTypeStructPtrs[idx]) {
+			delete sfManager()._voiceTypeStructPtrs[idx];
+			sfManager()._voiceTypeStructPtrs[idx] = NULL;
+		}
+	}
+
 	_soundManager = NULL;
 }
 
@@ -2475,6 +2483,10 @@ void ASoundExt::signal() {
 	if (_soundNum != 0) {
 		fadeSound(_soundNum);
 	}
+}
+
+void ASoundExt::fadeOut2(Action *action) {
+	fade(0, 10, 10, true, action);
 }
 
 /*--------------------------------------------------------------------------*/

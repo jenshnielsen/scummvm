@@ -117,6 +117,8 @@
 	void crosshair();
 	void showrain();
 	void deltextline();
+	void commandonly();
+	void commandonly(uint8 command);
 	void doblocks();
 	void checkifperson();
 	bool checkifperson(uint8 x, uint8 y);
@@ -130,7 +132,12 @@
 	void madmantext();
 	void madmode();
 	void movemap(uint8 param);
+	bool addalong(const uint8 *mapFlags);
+	bool addlength(const uint8 *mapFlags);
+	void getdimension();
+	void getdimension(uint8 *mapXstart, uint8 *mapYstart, uint8 *mapXsize, uint8 *mapYsize);
 	void getmapad();
+	void calcmapad();
 	uint8 getmapad(const uint8 *setData);
 	uint8 getxad(const uint8 *setData, uint8 *result);
 	uint8 getyad(const uint8 *setData, uint8 *result);
@@ -138,5 +145,21 @@
 	void finalframe();
 	void finalframe(uint16 *x, uint16 *y);
 	void showallobs();
+	void blocknametext();
+	void walktotext();
+	void personnametext();
+	void findxyfrompath();
+	void findormake();
+	void findormake(uint8 index, uint8 value, uint8 type);
+	FreeObject *getfreead(uint8 index);
+	ObjData *getsetad(uint8 index);
+	void setallchanges();
+	void dochange();
+	void dochange(uint8 index, uint8 value, uint8 type);
+	void deletetaken();
 	bool isCD();
+	void placesetobject();
+	void placesetobject(uint8 index);
+	void removesetobject();
+	void removesetobject(uint8 index);
 

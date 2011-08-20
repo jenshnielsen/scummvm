@@ -67,10 +67,7 @@ struct ObjData {
 	uint8 b9;
 	uint8 b10;
 	uint8 b11;
-	uint8 b12;
-	uint8 b13;
-	uint8 b14;
-	uint8 b15;
+	uint8 name[4];
 	uint8 b16;
 	uint8 b17;
 	uint8 b18[13]; // NB: Don't know the size yet
@@ -103,6 +100,25 @@ struct ObjData {
 	uint8 b57;
 	uint8 b58[5];
 	uint8 b63;
+};
+
+struct FreeObject {
+	uint8 b0;
+	uint8 b1;
+	uint8 b2;
+	uint8 b3;
+	uint8 b4;
+	uint8 b5;
+	uint8 b6;
+	uint8 b7;
+	uint8 b8;
+	uint8 b9;
+	uint8 b10;
+	uint8 b11;
+	uint8 b12;
+	uint8 b13;
+	uint8 b14;
+	uint8 b15;
 };
 
 struct ObjPos {
@@ -193,4 +209,12 @@ struct Rain {
 	void setW3(uint16 v) { WRITE_LE_UINT16(&w3_lo, v); }
 	uint8 b5;
 };
+
+struct Change {
+	uint8 index;
+	uint8 location;
+	uint8 value;
+	uint8 type;
+};
+
 

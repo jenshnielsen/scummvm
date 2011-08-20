@@ -6,7 +6,9 @@ MODULE_OBJS := \
 	detection.o \
 	dreamweb.o \
 	dreamgen.o \
+	pathfind.o \
 	print.o \
+	saveload.o \
 	sprite.o \
 	stubs.o \
 	vgagrafx.o

@@ -38,6 +38,7 @@ SceneManager::SceneManager() {
 	_scrollerRect = Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	_saver->addListener(this);
 	_objectCount = 0;
+	_loadMode = 0;
 }
 
 SceneManager::~SceneManager() {
@@ -113,7 +114,7 @@ void SceneManager::sceneChange() {
 		assert(_objectCount == _saver->getObjectCount());
 	}
 	_objectCount = _saver->getObjectCount();
-	_globals->_sceneHandler._delayTicks = 2;
+	_globals->_sceneHandler->_delayTicks = 2;
 
 	// Instantiate and set the new scene
 	_scene = getNewScene();
@@ -257,6 +258,7 @@ void SceneManager::listenerSynchronize(Serializer &s) {
 Scene::Scene() : _sceneBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
 			_backgroundBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT) {
 	_sceneMode = 0;
+	_activeScreenNumber = 0;
 	_oldSceneBounds = Rect(4000, 4000, 4100, 4100);
 	Common::set_to(&_zoomPercents[0], &_zoomPercents[256], 0);
 }
