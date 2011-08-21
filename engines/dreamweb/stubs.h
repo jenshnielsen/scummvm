@@ -69,6 +69,7 @@
 	Sprite *spritetable();
 	void showframe();
 	void showframe(const Frame *frameData, uint16 x, uint16 y, uint16 frameNumber, uint8 effectsFlag, uint8 *width, uint8 *height);
+	void showframe(const Frame *frameData, uint16 x, uint16 y, uint16 frameNumber, uint8 effectsFlag);
 	void printasprite(const Sprite *sprite);
 	void width160();
 	void multiput(const uint8 *src, uint16 x, uint16 y, uint8 width, uint8 height);
@@ -142,6 +143,7 @@
 	uint8 getxad(const uint8 *setData, uint8 *result);
 	uint8 getyad(const uint8 *setData, uint8 *result);
 	void calcfrframe();
+	void calcfrframe(uint8* width, uint8* height);
 	void finalframe();
 	void finalframe(uint16 *x, uint16 *y);
 	void showallobs();
@@ -162,4 +164,5 @@
 	void placesetobject(uint8 index);
 	void removesetobject();
 	void removesetobject(uint8 index);
+	void showallfree();
 

@@ -111,12 +111,21 @@ uint8 DreamGenContext::getmapad(const uint8 *setData) {
 }
 
 void DreamGenContext::calcfrframe() {
+	uint8 width, height;
+	calcfrframe(&width, &height);
+	cl = width;
+	ch = height;
+}
+
+void DreamGenContext::calcfrframe(uint8* width, uint8* height) {
 	const Frame *frame = (const Frame *)segRef(data.word(kFrsegment)).ptr(data.word(kCurrentframe) * sizeof(Frame), sizeof(Frame));
 	data.word(kSavesource) = data.word(kFramesad) + frame->ptr();
 	data.byte(kSavesize+0) = frame->width;
 	data.byte(kSavesize+1) = frame->height;
 	data.word(kOffsetx) = frame->x;
 	data.word(kOffsety) = frame->y;
+	*width = frame->width;
+	*height = frame->height;
 }
 
 void DreamGenContext::finalframe() {
@@ -157,8 +166,7 @@ void DreamGenContext::showallobs() {
 		if ((setEntry->type == 0) && (setEntry->priority != 5) && (setEntry->priority != 6)) {
 			x += data.word(kMapadx);
 			y += data.word(kMapady);
-			uint8 width, height;
-			showframe(frames, x, y, data.word(kCurrentframe), 0, &width, &height);
+			showframe(frames, x, y, data.word(kCurrentframe), 0);
 		} else
 			makebackob(setEntry);
 
@@ -234,6 +242,43 @@ void DreamGenContext::calcmapad() {
 	getdimension(&mapXstart, &mapYstart, &mapXsize, &mapYsize);
 	data.word(kMapadx) = data.word(kMapoffsetx) - 8 * (mapXsize + 2 * mapXstart - 11);
 	data.word(kMapady) = data.word(kMapoffsety) - 8 * (mapYsize + 2 * mapYstart - 10);
+}
+
+void DreamGenContext::showallfree() {
+	data.word(kListpos) = kFreelist;
+	ObjPos *listPos = (ObjPos *)segRef(data.word(kBuffers)).ptr(kFreelist, 80 * sizeof(ObjPos));
+	memset(listPos, 0xff, 80 * sizeof(ObjPos));
+
+	data.word(kFrsegment) = data.word(kFreeframes);
+	data.word(kDataad) = kFrframedata;
+	data.word(kFramesad) = kFrframes;
+	data.byte(kCurrentfree) = 0;
+	const uint8 *mapData = segRef(data.word(kFreedat)).ptr(2, 0);
+	for(size_t i = 0; i < 80; ++i) {
+		uint8 mapad = getmapad(mapData);
+		if (mapad != 0) {
+			data.word(kCurrentframe) = 3 * data.byte(kCurrentfree);
+			uint8 width, height;
+			calcfrframe(&width, &height);
+			uint16 x, y;
+			finalframe(&x, &y);
+			if ((width != 0) || (height != 0)) {
+				x += data.word(kMapadx);
+				y += data.word(kMapady);
+				showframe((Frame *)segRef(data.word(kFrsegment)).ptr(0, 0), x, y, data.word(kCurrentframe) & 0xff, 0);
+				ObjPos *objPos = (ObjPos *)segRef(data.word(kBuffers)).ptr(data.word(kListpos), sizeof(ObjPos));
+				objPos->xMin = data.byte(kSavex);
+				objPos->yMin = data.byte(kSavey);
+				objPos->xMax = data.byte(kSavex) + data.byte(kSavesize+0);
+				objPos->yMax = data.byte(kSavey) + data.byte(kSavesize+1);
+				objPos->index = i;
+				data.word(kListpos) += sizeof(ObjPos);
+			}
+		}
+
+		++data.byte(kCurrentfree);
+		mapData += 16;
+	}
 }
 
 } /*namespace dreamgen */
