@@ -123,6 +123,8 @@
 	void doblocks();
 	void checkifperson();
 	bool checkifperson(uint8 x, uint8 y);
+	void checkiffree();
+	bool checkiffree(uint8 x, uint8 y);
 	const uint8 *findobname(uint8 type, uint8 index);
 	void copyname();
 	void copyname(uint8 type, uint8 index, uint8 *dst);
@@ -165,4 +167,8 @@
 	void removesetobject();
 	void removesetobject(uint8 index);
 	void showallfree();
+	bool finishedwalkingCPP();
+	void finishedwalking();
+	void checkone();
+	void checkone(uint8 x, uint8 y, uint8 *flag, uint8 *flagEx, uint8 *type, uint8 *flagX, uint8 *flagY);
 

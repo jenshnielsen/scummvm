@@ -119,7 +119,6 @@ public:
 	static const uint16 addr_printmessage2 = 0xca30;
 	static const uint16 addr_printmessage = 0xca2c;
 	static const uint16 addr_examineobtext = 0xca20;
-	static const uint16 addr_finishedwalking = 0xca1c;
 	static const uint16 addr_obname = 0xca18;
 	static const uint16 addr_afterintroroom = 0xca14;
 	static const uint16 addr_walkintoroom = 0xca10;
@@ -133,7 +132,6 @@ public:
 	static const uint16 addr_findfirstpath = 0xc9f0;
 	static const uint16 addr_findpathofpoint = 0xc9ec;
 	static const uint16 addr_isitdescribed = 0xc9e8;
-	static const uint16 addr_checkiffree = 0xc9e4;
 	static const uint16 addr_checkifex = 0xc9e0;
 	static const uint16 addr_checkifset = 0xc9dc;
 	static const uint16 addr_identifyob = 0xc9d4;
@@ -465,7 +463,6 @@ public:
 	static const uint16 addr_dolook = 0xc474;
 	static const uint16 addr_look = 0xc470;
 	static const uint16 addr_autolook = 0xc46c;
-	static const uint16 addr_adjustlen = 0xc45c;
 	static const uint16 addr_showallex = 0xc450;
 	static const uint16 addr_drawflags = 0xc43c;
 	static const uint16 addr_drawfloor = 0xc428;
@@ -615,7 +612,6 @@ public:
 	static const uint16 addr_adjustdown = 0xc14c;
 	static const uint16 addr_checkforexit = 0xc148;
 	static const uint16 addr_mainman = 0xc138;
-	static const uint16 addr_checkone = 0xc12c;
 	static const uint16 addr_delsprite = 0xc11c;
 	static const uint16 addr_checkspeed = 0xc110;
 	static const uint16 addr_addtopeoplelist = 0xc108;
@@ -1351,7 +1347,7 @@ public:
 	void putundercentre();
 	void checkobjectsize();
 	//void commandonly();
-	void adjustlen();
+	void titles();
 	void deallocatemem();
 	void checkforemm();
 	void watchreel();
@@ -1590,7 +1586,7 @@ public:
 	void adjustright();
 	void putunderzoom();
 	void vsync();
-	void turnpathoff();
+	//void finishedwalking();
 	void findinvpos();
 	void usetext();
 	void hangonpq();
@@ -1613,7 +1609,7 @@ public:
 	void chewy();
 	void accesslighton();
 	void dosreturn();
-	void titles();
+	//void adjustlen();
 	//void quickquit();
 	void showpointer();
 	void usecooker();
@@ -1802,7 +1798,7 @@ public:
 	//void copyname();
 	void look();
 	void setmouse();
-	//void getdimension();
+	//void checkone();
 	void transferinv();
 	void candles2();
 	void pickupob();
@@ -1878,7 +1874,7 @@ public:
 	void grafittidoor();
 	void input();
 	void nextdest();
-	void checkone();
+	//void getdimension();
 	void makecaps();
 	void read();
 	void fadescreenups();
@@ -1976,7 +1972,7 @@ public:
 	void usecontrol();
 	void buttonseven();
 	void redrawmainscrn();
-	void finishedwalking();
+	void turnpathoff();
 	void findallryan();
 	//void channel0tran();
 	void buttonpress();
@@ -2055,7 +2051,7 @@ public:
 	void useobject();
 	void mainman();
 	void volumeadjust();
-	void checkiffree();
+	//void checkiffree();
 };
 }
 

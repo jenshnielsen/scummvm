@@ -2076,41 +2076,6 @@ void DreamGenContext::delsprite() {
 	_stosb(cx, true);
 }
 
-void DreamGenContext::checkone() {
-	STACK_CHECK;
-	push(cx);
-	al = ch;
-	ah = 0;
-	cl = 4;
-	_shr(ax, cl);
-	dl = al;
-	cx = pop();
-	al = cl;
-	ah = 0;
-	cl = 4;
-	_shr(ax, cl);
-	ah = dl;
-	push(ax);
-	ch = 0;
-	cl = al;
-	push(cx);
-	al = ah;
-	ah = 0;
-	cx = 11;
-	_mul(cx);
-	cx = pop();
-	_add(ax, cx);
-	cx = 3;
-	_mul(cx);
-	si = ax;
-	ds = data.word(kBuffers);
-	_add(si, (0+(228*13)+32+60+(32*32)));
-	_lodsw();
-	cx = ax;
-	_lodsb();
-	dx = pop();
-}
-
 void DreamGenContext::checkforexit() {
 	STACK_CHECK;
 	cl = data.byte(kRyanx);
@@ -6501,18 +6466,6 @@ blankex:
 	if (flags.z())
 		return /* (finex) */;
 	goto exloop;
-}
-
-void DreamGenContext::adjustlen() {
-	STACK_CHECK;
-	ah = al;
-	_add(al, ch);
-	_cmp(al, 100);
-	if (flags.c())
-		return /* (over242) */;
-	al = 224;
-	_sub(al, ch);
-	ch = al;
 }
 
 void DreamGenContext::autolook() {
@@ -15461,41 +15414,6 @@ notanexid:
 		goto identifyex;
 }
 
-void DreamGenContext::checkiffree() {
-	STACK_CHECK;
-	es = data.word(kBuffers);
-	bx = (0+(228*13)+32+60+(32*32)+(11*10*3)+768+768+768+(32*32)+(128*5))+(79*5);
-	cx = 79;
-identifyfree:
-	_cmp(es.byte(bx+4), 255);
-	if (flags.z())
-		goto notafreeid;
-	_cmp(al, es.byte(bx));
-	if (flags.c())
-		goto notafreeid;
-	_cmp(al, es.byte(bx+2));
-	if (!flags.c())
-		goto notafreeid;
-	_cmp(ah, es.byte(bx+1));
-	if (flags.c())
-		goto notafreeid;
-	_cmp(ah, es.byte(bx+3));
-	if (!flags.c())
-		goto notafreeid;
-	al = es.byte(bx+4);
-	ah = 2;
-	obname();
-	al = 0;
-	_cmp(al, 1);
-	return;
-notafreeid:
-	_sub(bx, 5);
-	_dec(cx);
-	_cmp(cx, -1);
-	if (!flags.z())
-		goto identifyfree;
-}
-
 void DreamGenContext::isitdescribed() {
 	STACK_CHECK;
 	push(ax);
@@ -15999,15 +15917,6 @@ isaperson:
 	return;
 toofaraway:
 	walktotext();
-}
-
-void DreamGenContext::finishedwalking() {
-	STACK_CHECK;
-	_cmp(data.byte(kLinepointer), 254);
-	if (!flags.z())
-		return /* (iswalking) */;
-	al = data.byte(kFacing);
-	_cmp(al, data.byte(kTurntoface));
 }
 
 void DreamGenContext::examineobtext() {
@@ -18179,7 +18088,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_addtopeoplelist: addtopeoplelist(); break;
 		case addr_checkspeed: checkspeed(); break;
 		case addr_delsprite: delsprite(); break;
-		case addr_checkone: checkone(); break;
 		case addr_mainman: mainman(); break;
 		case addr_checkforexit: checkforexit(); break;
 		case addr_adjustdown: adjustdown(); break;
@@ -18329,7 +18237,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_drawfloor: drawfloor(); break;
 		case addr_drawflags: drawflags(); break;
 		case addr_showallex: showallex(); break;
-		case addr_adjustlen: adjustlen(); break;
 		case addr_autolook: autolook(); break;
 		case addr_look: look(); break;
 		case addr_dolook: dolook(); break;
@@ -18659,7 +18566,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_identifyob: identifyob(); break;
 		case addr_checkifset: checkifset(); break;
 		case addr_checkifex: checkifex(); break;
-		case addr_checkiffree: checkiffree(); break;
 		case addr_isitdescribed: isitdescribed(); break;
 		case addr_findpathofpoint: findpathofpoint(); break;
 		case addr_findfirstpath: findfirstpath(); break;
@@ -18673,7 +18579,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_walkintoroom: walkintoroom(); break;
 		case addr_afterintroroom: afterintroroom(); break;
 		case addr_obname: obname(); break;
-		case addr_finishedwalking: finishedwalking(); break;
 		case addr_examineobtext: examineobtext(); break;
 		case addr_printmessage: printmessage(); break;
 		case addr_printmessage2: printmessage2(); break;
