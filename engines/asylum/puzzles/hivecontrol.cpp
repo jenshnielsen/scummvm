@@ -87,7 +87,7 @@ void PuzzleHiveControl::reset() {
 
 	_frameIndexes[kElementSwirlRim] = 0;
 	if (_leverPosition != _prevLeverPosition) {
-		_leverDelta = (uint32)abs((double)(_leverPosition - _prevLeverPosition)) * 16 / 5;
+		_leverDelta = (uint32)abs((double)_leverPosition - (double)_prevLeverPosition) * 16 / 5;
 		_currentControl = kControlGlyph4;
 	}
 }
@@ -237,9 +237,17 @@ bool PuzzleHiveControl::mouseLeftDown(const AsylumEvent &) {
 				getSound()->playSound(getWorld()->graphicResourceIds[83], false, Config.sfxVolume - 10);
 				++_frameIndexes[kElementSwirlRim];
 
-				error("[PuzzleHiveControl::mouseLeftDown] Not implemented");
-				//if (_frameIndexes[kElementSwirlRim] == 12)
-					//	...
+				// Check for puzzle completion
+				if (_frameIndexes[kElementSwirlRim] == 12) {
+					getSound()->stop(getWorld()->graphicResourceIds[73]);
+					getSound()->stop(getWorld()->graphicResourceIds[74]);
+
+					getScreen()->clear();
+					getScreen()->setupTransTables(3, getWorld()->cellShadeMask1, getWorld()->cellShadeMask2, getWorld()->cellShadeMask3);
+					getScreen()->selectTransTable(1);
+
+					_vm->switchEventHandler(getScene());
+				}
 			}
 		}
 		break;
@@ -252,8 +260,18 @@ bool PuzzleHiveControl::mouseLeftDown(const AsylumEvent &) {
 			if (_glyphFlags[1][_leverPosition]) {
 				getSound()->playSound(getWorld()->graphicResourceIds[83], false, Config.sfxVolume - 10);
 				++_frameIndexes[kElementSwirlRim];
-				//if (_frameIndexes[kElementSwirlRim] == 12)
-				//	...
+
+				// Check for puzzle completion
+				if (_frameIndexes[kElementSwirlRim] == 12) {
+					getSound()->stop(getWorld()->graphicResourceIds[73]);
+					getSound()->stop(getWorld()->graphicResourceIds[74]);
+
+					getScreen()->clear();
+					getScreen()->setupTransTables(3, getWorld()->cellShadeMask1, getWorld()->cellShadeMask2, getWorld()->cellShadeMask3);
+					getScreen()->selectTransTable(1);
+
+					_vm->switchEventHandler(getScene());
+				}
 			}
 		}
 		break;
@@ -265,7 +283,7 @@ bool PuzzleHiveControl::mouseLeftDown(const AsylumEvent &) {
 	case kControlGlyph5:
 	case kControlGlyph6:
 		_leverPosition = _currentControl - 49;
-		_leverDelta = (uint32)abs((double)(_leverPosition - _prevLeverPosition)) * (GraphicResource::getFrameCount(_vm, getWorld()->graphicResourceIds[kElementLever]) - 1) / 5;
+		_leverDelta = (uint32)abs((double)_leverPosition - (double)_prevLeverPosition) * (GraphicResource::getFrameCount(_vm, getWorld()->graphicResourceIds[kElementLever]) - 1) / 5;
 		if (_leverDelta)
 			getSound()->playSound(getWorld()->graphicResourceIds[76], false, Config.sfxVolume - 10);
 	}
@@ -360,7 +378,7 @@ void PuzzleHiveControl::updateScreen() {
 	if (_resetFlag) {
 		getScreen()->addGraphicToQueue(getWorld()->graphicResourceIds[kElementResetDynamic], _frameIndexes[kElementResetDynamic], Common::Point(211, 77), kDrawFlagNone, 0, 2);
 		_frameIndexes[kElementResetDynamic] = (_frameIndexes[kElementResetDynamic] + 1) % GraphicResource::getFrameCount(_vm, getWorld()->graphicResourceIds[kElementResetDynamic]);
-		if (_frameIndexes[kElementResetDynamic] == GraphicResource::getFrameCount(_vm, getWorld()->graphicResourceIds[kElementResetDynamic]) - 1) {
+		if (_frameIndexes[kElementResetDynamic] == 0) {
 			_resetFlag = false;
 			getCursor()->show();
 			if (!(_wingsState[0] || _wingsState[1] || _wingsState[2])) {
@@ -408,8 +426,7 @@ void PuzzleHiveControl::updateScreen() {
 				_frameIndexes[kElementWingLeft1 + 2*i] = (_frameIndexes[kElementWingLeft1 + 2*i] + 1) % GraphicResource::getFrameCount(_vm, getWorld()->graphicResourceIds[kElementWingLeft1 + 2*i]);
 			if (_frameIndexes[kElementWingRight1 + 2*i] != GraphicResource::getFrameCount(_vm, getWorld()->graphicResourceIds[kElementWingRight1 + 2*i]) - 1)
 				_frameIndexes[kElementWingRight1 + 2*i] = (_frameIndexes[kElementWingRight1 + 2*i] + 1) % GraphicResource::getFrameCount(_vm, getWorld()->graphicResourceIds[kElementWingRight1 + 2*i]);
-		}
-		else {
+		} else {
 			if (_frameIndexes[kElementWingLeft1 + 2*i] > 0) {
 				--_frameIndexes[kElementWingLeft1 + 2*i];
 				if (_resetFlag && _frameIndexes[kElementWingLeft1 + 2*i] == 0 && !reseted) {
