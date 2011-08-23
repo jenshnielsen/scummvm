@@ -667,7 +667,7 @@ void DreamGenContext::cancelch1() {
 	engine->stopSound(1);
 }
 
-void DreamGenContext::makebackob(ObjData *objData) {
+void DreamGenContext::makebackob(SetObject *objData) {
 	if (data.byte(kNewobs) == 0)
 		return;
 	uint8 priority = objData->priority;
@@ -675,8 +675,8 @@ void DreamGenContext::makebackob(ObjData *objData) {
 	Sprite *sprite = makesprite(data.word(kObjectx), data.word(kObjecty), addr_backobject, data.word(kSetframes), 0);
 
 	uint16 objDataOffset = (uint8 *)objData - segRef(data.word(kSetdat)).ptr(0, 0);
-	assert(objDataOffset % sizeof(ObjData) == 0);
-	assert(objDataOffset < 128 * sizeof(ObjData));
+	assert(objDataOffset % sizeof(SetObject) == 0);
+	assert(objDataOffset < 128 * sizeof(SetObject));
 	sprite->setObjData(objDataOffset);
 	if (priority == 255)
 		priority = 0;
@@ -947,9 +947,7 @@ bool DreamGenContext::checkifperson(uint8 x, uint8 y) {
 		if (y >= ymax)
 			continue;
 		data.word(kPersondata) = people->w2();
-		al = people->b4;
-		ah = 5;
-		obname();
+		obname(people->b4, 5);
 		return true;
 	}
 	return false;
@@ -973,9 +971,7 @@ bool DreamGenContext::checkiffree(uint8 x, uint8 y) {
 			continue;
 		if (y >= objPos->yMax)
 			continue;
-		al = objPos->index;
-		ah = 2;
-		obname();
+		obname(objPos->index, 2);
 		return true;
 	}
 	return false;
@@ -1097,12 +1093,16 @@ void DreamGenContext::setallchanges() {
 	}
 }
 
-FreeObject *DreamGenContext::getfreead(uint8 index) {
-	return (FreeObject *)segRef(data.word(kFreedat)).ptr(0, 0) + index;
+DynObject *DreamGenContext::getfreead(uint8 index) {
+	return (DynObject *)segRef(data.word(kFreedat)).ptr(0, 0) + index;
 }
 
-ObjData *DreamGenContext::getsetad(uint8 index) {
-	return (ObjData *)segRef(data.word(kSetdat)).ptr(0, 0) + index;
+DynObject *DreamGenContext::getexad(uint8 index) {
+	return (DynObject *)segRef(data.word(kExtras)).ptr(kExdata, 0) + index;
+}
+
+SetObject *DreamGenContext::getsetad(uint8 index) {
+	return (SetObject *)segRef(data.word(kSetdat)).ptr(0, 0) + index;
 }
 
 void DreamGenContext::dochange() {
@@ -1113,7 +1113,7 @@ void DreamGenContext::dochange(uint8 index, uint8 value, uint8 type) {
 	if (type == 0) { //object
 		getsetad(index)->b58[0] = value;
 	} else if (type == 1) { //freeobject
-		FreeObject *freeObject = getfreead(index);
+		DynObject *freeObject = getfreead(index);
 		if (freeObject->b2 == 0xff)
 			freeObject->b2 = value;
 	} else { //path
@@ -1124,16 +1124,14 @@ void DreamGenContext::dochange(uint8 index, uint8 value, uint8 type) {
 }
 
 void DreamGenContext::deletetaken() {
-	ds = data.word(kExtras);
-	si = kExdata;
-	FreeObject *freeObjects = (FreeObject *)segRef(data.word(kFreedat)).ptr(0, 0);
+	const DynObject *extraObjects = (const DynObject *)segRef(data.word(kExtras)).ptr(kExdata, 0);
+	DynObject *freeObjects = (DynObject *)segRef(data.word(kFreedat)).ptr(0, 0);
 	for(size_t i = 0; i < kNumexobjects; ++i) {
-		uint8 location = ds.byte(si+11);
+		uint8 location = extraObjects[i].location;
 		if (location == data.byte(kReallocation)) {
-			uint8 index = ds.byte(si+1);
+			uint8 index = extraObjects[i].index;
 			freeObjects[index].b2 = 254;
 		}
-		si += 16;
 	}
 }
 
@@ -1161,6 +1159,105 @@ void DreamGenContext::finishedwalking() {
 
 bool DreamGenContext::finishedwalkingCPP() {
 	return (data.byte(kLinepointer) == 254) && (data.byte(kFacing) == data.byte(kTurntoface));
+}
+
+void DreamGenContext::getflagunderp() {
+	uint8 flag, flagEx;
+	getflagunderp(&flag, &flagEx);
+	cl = flag;
+	ch = flagEx;
+}
+
+void DreamGenContext::getflagunderp(uint8 *flag, uint8 *flagEx) {
+	uint8 type, flagX, flagY;
+	checkone(data.word(kMousex) - data.word(kMapadx), data.word(kMousey) - data.word(kMapady), flag, flagEx, &type, &flagX, &flagY);
+	cl = data.byte(kLastflag) = *flag;
+	ch = data.byte(kLastflagex) = *flagEx;
+}
+
+void DreamGenContext::walkandexamine() {
+	if (! finishedwalkingCPP())
+		return;
+	data.byte(kCommandtype) = data.byte(kWalkexamtype);
+	data.byte(kCommand) = data.byte(kWalkexamnum);
+	data.byte(kWalkandexam) = 0;
+	if (data.byte(kCommandtype) != 5)
+		examineob();
+}
+
+void DreamGenContext::obname() {
+	obname(al, ah);
+}
+
+void DreamGenContext::obname(uint8 command, uint8 commandType) {
+	if (data.byte(kReasseschanges) == 0) {
+		if ((commandType == data.byte(kCommandtype)) && (command == data.byte(kCommand))) {
+			if (data.byte(kWalkandexam) == 1) {
+				walkandexamine();
+				return;
+			} else if (data.word(kMousebutton) == 0)
+				return;
+			else if ((data.byte(kCommandtype) == 3) && (data.byte(kLastflag) < 2))
+				return;
+			else if ((data.byte(kManspath) != data.byte(kPointerspath)) || (data.byte(kCommandtype) == 3)) {
+				setwalk();
+				data.byte(kReasseschanges) = 1;
+				return;
+			} else if (! finishedwalkingCPP())
+				return;
+			else if (data.byte(kCommandtype) == 5) {
+				if (data.word(kWatchingtime) == 0)
+					talk();
+				return;
+			} else {
+				if (data.word(kWatchingtime) == 0)
+					examineob();
+				return;
+			}
+		}
+	} else
+		data.byte(kReasseschanges) = 0;
+
+	data.byte(kCommand) = command;
+	data.byte(kCommandtype) = commandType;
+	if ((data.byte(kLinepointer) != 254) || (data.word(kWatchingtime) != 0) || (data.byte(kFacing) != data.byte(kTurntoface))) {
+		blocknametext();
+		return;
+	} else if (data.byte(kCommandtype) != 3) {
+		if (data.byte(kManspath) != data.byte(kPointerspath)) {
+			walktotext();
+			return;
+		} else if (data.byte(kCommandtype) == 3) {
+			blocknametext();
+			return;
+		} else if (data.byte(kCommandtype) == 5) {
+			personnametext();
+			return;
+		} else {
+			examineobtext();
+			return;
+		}
+	}
+	if (data.byte(kManspath) == data.byte(kPointerspath)) {
+		uint8 flag, flagEx, type, flagX, flagY;
+		checkone(data.byte(kRyanx) + 12, data.byte(kRyany) + 12, &flag, &flagEx, &type, &flagX, &flagY);
+		if (flag < 2) {
+			blocknametext();
+			return;
+		}
+	}
+
+	getflagunderp();
+	if (data.byte(kLastflag) < 2) {
+		blocknametext();
+		return;
+	} else if (data.byte(kLastflag) >= 128) {
+		blocknametext();
+		return;
+	} else {
+		walktotext();
+		return;
+	}
 }
 
 bool DreamGenContext::isCD() {

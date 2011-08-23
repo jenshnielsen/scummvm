@@ -15109,88 +15109,6 @@ notzeronum:
 	ch = 1;
 }
 
-void DreamGenContext::walkandexamine() {
-	STACK_CHECK;
-	finishedwalking();
-	if (!flags.z())
-		return /* (noobselect) */;
-	al = data.byte(kWalkexamtype);
-	data.byte(kCommandtype) = al;
-	al = data.byte(kWalkexamnum);
-	data.byte(kCommand) = al;
-	data.byte(kWalkandexam) = 0;
-	_cmp(data.byte(kCommandtype), 5);
-	if (flags.z())
-		return /* (noobselect) */;
-	examineob();
-	return;
-wantstowalk:
-	setwalk();
-	data.byte(kReasseschanges) = 1;
-	return;
-diff:
-	data.byte(kCommand) = al;
-	data.byte(kCommandtype) = ah;
-	_cmp(data.byte(kLinepointer), 254);
-	if (!flags.z())
-		goto middleofwalk;
-	_cmp(data.word(kWatchingtime), 0);
-	if (!flags.z())
-		goto middleofwalk;
-	al = data.byte(kFacing);
-	_cmp(al, data.byte(kTurntoface));
-	if (!flags.z())
-		goto middleofwalk;
-	_cmp(data.byte(kCommandtype), 3);
-	if (!flags.z())
-		goto notblock;
-	bl = data.byte(kManspath);
-	_cmp(bl, data.byte(kPointerspath));
-	if (!flags.z())
-		goto dontcheck;
-	cl = data.byte(kRyanx);
-	_add(cl, 12);
-	ch = data.byte(kRyany);
-	_add(ch, 12);
-	checkone();
-	_cmp(cl, 2);
-	if (flags.c())
-		goto isblock;
-dontcheck:
-	getflagunderp();
-	_cmp(data.byte(kLastflag), 2);
-	if (flags.c())
-		goto isblock;
-	_cmp(data.byte(kLastflag), 128);
-	if (!flags.c())
-		goto isblock;
-	goto toofaraway;
-notblock:
-	bl = data.byte(kManspath);
-	_cmp(bl, data.byte(kPointerspath));
-	if (!flags.z())
-		goto toofaraway;
-	_cmp(data.byte(kCommandtype), 3);
-	if (flags.z())
-		goto isblock;
-	_cmp(data.byte(kCommandtype), 5);
-	if (flags.z())
-		goto isaperson;
-	examineobtext();
-	return;
-middleofwalk:
-	blocknametext();
-	return;
-isblock:
-	blocknametext();
-	return;
-isaperson:
-	personnametext();
-	return;
-toofaraway:
-	walktotext();
-}
-
 void DreamGenContext::mainscreen() {
 	STACK_CHECK;
 	data.byte(kInmaparea) = 0;
@@ -15785,140 +15703,6 @@ void DreamGenContext::afterintroroom() {
 	data.byte(kNowinnewroom) = 0;
 }
 
-void DreamGenContext::obname() {
-	STACK_CHECK;
-	_cmp(data.byte(kReasseschanges), 0);
-	if (flags.z())
-		goto notnewpath;
-	data.byte(kReasseschanges) = 0;
-	goto diff;
-notnewpath:
-	_cmp(ah, data.byte(kCommandtype));
-	if (flags.z())
-		goto notdiffob;
-	goto diff;
-notdiffob:
-	_cmp(al, data.byte(kCommand));
-	if (!flags.z())
-		goto diff;
-	_cmp(data.byte(kWalkandexam), 1);
-	if (flags.z())
-		goto walkandexamine;
-	_cmp(data.word(kMousebutton), 0);
-	if (flags.z())
-		return /* (noobselect) */;
-	_cmp(data.byte(kCommandtype), 3);
-	if (!flags.z())
-		goto isntblock;
-	_cmp(data.byte(kLastflag), 2);
-	if (flags.c())
-		return /* (noobselect) */;
-isntblock:
-	bl = data.byte(kManspath);
-	_cmp(bl, data.byte(kPointerspath));
-	if (!flags.z())
-		goto wantstowalk;
-	_cmp(data.byte(kCommandtype), 3);
-	if (flags.z())
-		goto wantstowalk;
-	finishedwalking();
-	if (!flags.z())
-		return /* (noobselect) */;
-	_cmp(data.byte(kCommandtype), 5);
-	if (flags.z())
-		goto wantstotalk;
-	_cmp(data.word(kWatchingtime), 0);
-	if (!flags.z())
-		return /* (noobselect) */;
-	examineob();
-	return;
-wantstotalk:
-	_cmp(data.word(kWatchingtime), 0);
-	if (!flags.z())
-		return /* (noobselect) */;
-	talk();
-	return;
-walkandexamine:
-	finishedwalking();
-	if (!flags.z())
-		return /* (noobselect) */;
-	al = data.byte(kWalkexamtype);
-	data.byte(kCommandtype) = al;
-	al = data.byte(kWalkexamnum);
-	data.byte(kCommand) = al;
-	data.byte(kWalkandexam) = 0;
-	_cmp(data.byte(kCommandtype), 5);
-	if (flags.z())
-		return /* (noobselect) */;
-	examineob();
-	return;
-wantstowalk:
-	setwalk();
-	data.byte(kReasseschanges) = 1;
-	return;
-diff:
-	data.byte(kCommand) = al;
-	data.byte(kCommandtype) = ah;
-	_cmp(data.byte(kLinepointer), 254);
-	if (!flags.z())
-		goto middleofwalk;
-	_cmp(data.word(kWatchingtime), 0);
-	if (!flags.z())
-		goto middleofwalk;
-	al = data.byte(kFacing);
-	_cmp(al, data.byte(kTurntoface));
-	if (!flags.z())
-		goto middleofwalk;
-	_cmp(data.byte(kCommandtype), 3);
-	if (!flags.z())
-		goto notblock;
-	bl = data.byte(kManspath);
-	_cmp(bl, data.byte(kPointerspath));
-	if (!flags.z())
-		goto dontcheck;
-	cl = data.byte(kRyanx);
-	_add(cl, 12);
-	ch = data.byte(kRyany);
-	_add(ch, 12);
-	checkone();
-	_cmp(cl, 2);
-	if (flags.c())
-		goto isblock;
-dontcheck:
-	getflagunderp();
-	_cmp(data.byte(kLastflag), 2);
-	if (flags.c())
-		goto isblock;
-	_cmp(data.byte(kLastflag), 128);
-	if (!flags.c())
-		goto isblock;
-	goto toofaraway;
-notblock:
-	bl = data.byte(kManspath);
-	_cmp(bl, data.byte(kPointerspath));
-	if (!flags.z())
-		goto toofaraway;
-	_cmp(data.byte(kCommandtype), 3);
-	if (flags.z())
-		goto isblock;
-	_cmp(data.byte(kCommandtype), 5);
-	if (flags.z())
-		goto isaperson;
-	examineobtext();
-	return;
-middleofwalk:
-	blocknametext();
-	return;
-isblock:
-	blocknametext();
-	return;
-isaperson:
-	personnametext();
-	return;
-toofaraway:
-	walktotext();
-}
-
 void DreamGenContext::examineobtext() {
 	STACK_CHECK;
 	bl = data.byte(kCommand);
@@ -15974,18 +15758,6 @@ searchmess:
 	al = 0;
 	ah = 0;
 	printdirect();
-}
-
-void DreamGenContext::getflagunderp() {
-	STACK_CHECK;
-	cx = data.word(kMousex);
-	_sub(cx, data.word(kMapadx));
-	ax = data.word(kMousey);
-	_sub(ax, data.word(kMapady));
-	ch = al;
-	checkone();
-	data.byte(kLastflag) = cl;
-	data.byte(kLastflagex) = ch;
 }
 
 void DreamGenContext::setwalk() {
@@ -18578,11 +18350,9 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_atmospheres: atmospheres(); break;
 		case addr_walkintoroom: walkintoroom(); break;
 		case addr_afterintroroom: afterintroroom(); break;
-		case addr_obname: obname(); break;
 		case addr_examineobtext: examineobtext(); break;
 		case addr_printmessage: printmessage(); break;
 		case addr_printmessage2: printmessage2(); break;
-		case addr_getflagunderp: getflagunderp(); break;
 		case addr_setwalk: setwalk(); break;
 		case addr_bresenhams: bresenhams(); break;
 		case addr_workoutframes: workoutframes(); break;
@@ -18659,7 +18429,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_setkeyboardint: setkeyboardint(); break;
 		case addr_resetkeyboard: resetkeyboard(); break;
 		case addr_keyboardread: keyboardread(); break;
-		case addr_walkandexamine: walkandexamine(); break;
 		case addr_doload: doload(); break;
 		case addr_generalerror: generalerror(); break;
 		default: ::error("invalid call to %04x dispatched", (uint16)ax);
