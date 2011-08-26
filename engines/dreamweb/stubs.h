@@ -58,10 +58,8 @@
 	void dumptextline();
 	void getnumber();
 	uint8 getnumber(const Frame *charSet, const uint8 *string, uint16 maxWidth, bool centered, uint16 *offset);
-	void kernchars();
 	uint8 kernchars(uint8 firstChar, uint8 secondChar, uint8 width);
 	void getroomdata();
-	void getroomdata(uint8 roomIndex);
 	void readheader();
 	void fillspace();
 	void startloading();
@@ -157,6 +155,7 @@
 	void findormake(uint8 index, uint8 value, uint8 type);
 	DynObject *getfreead(uint8 index);
 	DynObject *getexad(uint8 index);
+	DynObject *geteitheradCPP();
 	SetObject *getsetad(uint8 index);
 	void setallchanges();
 	void dochange();
@@ -177,4 +176,19 @@
 	void walkandexamine();
 	void obname();
 	void obname(uint8 command, uint8 commandType);
+	void delpointer();
+	void showblink();
+	void dumpblink();
+	void dumppointer();
+	void showpointer();
+	void animpointer();
+	void checkcoords();
+	void checkcoords(const RectWithCallback *rectWithCallbacks);
+	void readmouse();
+	void readmouse1();
+	void readmouse2();
+	void readmouse3();
+	void readmouse4();
+	uint16 waitframes();
+	void drawflags();
 
