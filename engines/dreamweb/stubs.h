@@ -47,6 +47,8 @@
 	void printchar(const Frame* charSet, uint16 *x, uint16 y, uint8 c, uint8 nextChar, uint8 *width, uint8 *height);
 	void printdirect();
 	void printdirect(const uint8** string, uint16 x, uint16 *y, uint8 maxWidth, bool centered);
+	void printmessage(uint16 x, uint16 y, uint8 index, uint8 maxWidth, bool centered);
+	void printmessage();
 	void usetimedtext();
 	void dumptimedtext();
 	void setuptimedtemp();
@@ -97,6 +99,7 @@
 	void findsource();
 	Frame *findsourceCPP();
 	void showgamereel();
+	void showgamereel(ReelRoutine *routine);
 	void showreelframe();
 	void showreelframe(Reel *reel);
 	const Frame *getreelframeax(uint16 frame);
@@ -123,6 +126,8 @@
 	bool checkifperson(uint8 x, uint8 y);
 	void checkiffree();
 	bool checkiffree(uint8 x, uint8 y);
+	void checkifex();
+	bool checkifex(uint8 x, uint8 y);
 	const uint8 *findobname(uint8 type, uint8 index);
 	void copyname();
 	void copyname(uint8 type, uint8 index, uint8 *dst);
@@ -167,6 +172,7 @@
 	void removesetobject();
 	void removesetobject(uint8 index);
 	void showallfree();
+	void showallex();
 	bool finishedwalkingCPP();
 	void finishedwalking();
 	void checkone();
@@ -191,4 +197,12 @@
 	void readmouse4();
 	uint16 waitframes();
 	void drawflags();
+	void addtopeoplelist();
+	void addtopeoplelist(ReelRoutine *routine);
+	void getexpos();
+	void paneltomap();
+	void maptopanel();
+	void dumpmap();
+	void obpicture();
+	void transferinv();
 

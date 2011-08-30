@@ -2032,24 +2032,6 @@ gottrainframe:
 	showgamereel();
 }
 
-void DreamGenContext::addtopeoplelist() {
-	STACK_CHECK;
-	push(es);
-	push(bx);
-	push(bx);
-	cl = es.byte(bx+7);
-	ax = es.word(bx+3);
-	bx = data.word(kListpos);
-	es = data.word(kBuffers);
-	es.word(bx) = ax;
-	ax = pop();
-	es.word(bx+2) = ax;
-	es.byte(bx+4) = cl;
-	bx = pop();
-	es = pop();
-	_add(data.word(kListpos), 5);
-}
-
 void DreamGenContext::checkspeed() {
 	STACK_CHECK;
 	_cmp(data.byte(kLastweapon), -1);
@@ -2675,43 +2657,6 @@ nought:
 		goto palloop;
 }
 
-void DreamGenContext::paneltomap() {
-	STACK_CHECK;
-	di = data.word(kMapxstart);
-	_add(di, data.word(kMapadx));
-	bx = data.word(kMapystart);
-	_add(bx, data.word(kMapady));
-	ds = data.word(kMapstore);
-	si = 0;
-	cl = data.byte(kMapxsize);
-	ch = data.byte(kMapysize);
-	multiget();
-}
-
-void DreamGenContext::maptopanel() {
-	STACK_CHECK;
-	di = data.word(kMapxstart);
-	_add(di, data.word(kMapadx));
-	bx = data.word(kMapystart);
-	_add(bx, data.word(kMapady));
-	ds = data.word(kMapstore);
-	si = 0;
-	cl = data.byte(kMapxsize);
-	ch = data.byte(kMapysize);
-	multiput();
-}
-
-void DreamGenContext::dumpmap() {
-	STACK_CHECK;
-	di = data.word(kMapxstart);
-	_add(di, data.word(kMapadx));
-	bx = data.word(kMapystart);
-	_add(bx, data.word(kMapady));
-	cl = data.byte(kMapxsize);
-	ch = data.byte(kMapysize);
-	multidump();
-}
-
 void DreamGenContext::pixelcheckset() {
 	STACK_CHECK;
 	push(ax);
@@ -2795,99 +2740,6 @@ void DreamGenContext::createpanel2() {
 	al = 5;
 	ah = 2;
 	showframe();
-}
-
-void DreamGenContext::delthisone() {
-	STACK_CHECK;
-	push(ax);
-	push(ax);
-	al = ah;
-	ah = 0;
-	_add(ax, data.word(kMapady));
-	bx = (320);
-	_mul(bx);
-	bx = pop();
-	bh = 0;
-	_add(bx, data.word(kMapadx));
-	_add(ax, bx);
-	di = ax;
-	ax = pop();
-	push(ax);
-	al = ah;
-	ah = 0;
-	bx = 22*8;
-	_mul(bx);
-	bx = pop();
-	bh = 0;
-	_add(ax, bx);
-	si = ax;
-	es = data.word(kWorkspace);
-	ds = data.word(kMapstore);
-	dl = cl;
-	dh = 0;
-	ax = (320);
-	_sub(ax, dx);
-	_neg(dx);
-	_add(dx, 22*8);
-deloneloop:
-	push(cx);
-	ch = 0;
-	_movsb(cx, true);
-	cx = pop();
-	_add(di, ax);
-	_add(si, dx);
-	_dec(ch);
-	if (!flags.z())
-		goto deloneloop;
-}
-
-void DreamGenContext::transferinv() {
-	STACK_CHECK;
-	di = data.word(kExframepos);
-	push(di);
-	al = data.byte(kExpos);
-	ah = 0;
-	bx = ax;
-	_add(ax, ax);
-	_add(ax, bx);
-	_inc(ax);
-	cx = 6;
-	_mul(cx);
-	es = data.word(kExtras);
-	bx = (0);
-	_add(bx, ax);
-	_add(di, (0+2080));
-	push(bx);
-	al = data.byte(kItemtotran);
-	ah = 0;
-	bx = ax;
-	_add(ax, ax);
-	_add(ax, bx);
-	_inc(ax);
-	cx = 6;
-	_mul(cx);
-	ds = data.word(kFreeframes);
-	bx = (0);
-	_add(bx, ax);
-	si = (0+2080);
-	al = ds.byte(bx);
-	ah = 0;
-	cl = ds.byte(bx+1);
-	ch = 0;
-	_add(si, ds.word(bx+2));
-	dx = ds.word(bx+4);
-	bx = pop();
-	es.byte(bx+0) = al;
-	es.byte(bx+1) = cl;
-	es.word(bx+4) = dx;
-	_mul(cx);
-	cx = ax;
-	push(cx);
-	_movsb(cx, true);
-	cx = pop();
-	ax = pop();
-	es.word(bx+2) = ax;
-	_add(data.word(kExframepos), cx);
 }
 
 void DreamGenContext::transfermap() {
@@ -4518,38 +4370,6 @@ void DreamGenContext::examicon() {
 	showframe();
 }
 
-void DreamGenContext::obpicture() {
-	STACK_CHECK;
-	al = data.byte(kCommand);
-	ah = data.byte(kObjecttype);
-	_cmp(ah, 1);
-	if (flags.z())
-		return /* (setframe) */;
-	_cmp(ah, 4);
-	if (flags.z())
-		goto exframe;
-	ds = data.word(kFreeframes);
-	di = 160;
-	bx = 68;
-	cl = al;
-	_add(al, al);
-	_add(al, cl);
-	_inc(al);
-	ah = 128;
-	showframe();
-	return;
-exframe:
-	ds = data.word(kExtras);
-	di = 160;
-	bx = 68;
-	cl = al;
-	_add(al, al);
-	_add(al, cl);
-	_inc(al);
-	ah = 128;
-	showframe();
-}
-
 void DreamGenContext::describeob() {
 	STACK_CHECK;
 	getobtextstart();
@@ -6044,24 +5864,6 @@ moretext:
 		goto moretext;
 }
 
-void DreamGenContext::getexpos() {
-	STACK_CHECK;
-	es = data.word(kExtras);
-	al = 0;
-	di = (0+2080+30000);
-tryanotherex:
-	_cmp(es.byte(di+2), 255);
-	if (flags.z())
-		goto foundnewex;
-	_add(di, 16);
-	_inc(al);
-	_cmp(al, (114));
-	if (!flags.z())
-		goto tryanotherex;
-foundnewex:
-	data.byte(kExpos) = al;
-}
-
 void DreamGenContext::purgealocation() {
 	STACK_CHECK;
 	push(ax);
@@ -6319,94 +6121,6 @@ void DreamGenContext::drawfloor() {
 	data.byte(kNewobs) = 0;
 	bx = pop();
 	es = pop();
-}
-
-void DreamGenContext::showallex() {
-	STACK_CHECK;
-	es = data.word(kBuffers);
-	bx = (0+(228*13)+32+60+(32*32)+(11*10*3)+768+768+768+(32*32)+(128*5)+(80*5));
-	data.word(kListpos) = bx;
-	di = (0+(228*13)+32+60+(32*32)+(11*10*3)+768+768+768+(32*32)+(128*5)+(80*5));
-	cx = 100*5;
-	al = 255;
-	_stosb(cx, true);
-	es = data.word(kExtras);
-	data.word(kFrsegment) = es;
-	ax = (0);
-	data.word(kDataad) = ax;
-	ax = (0+2080);
-	data.word(kFramesad) = ax;
-	data.byte(kCurrentex) = 0;
-	si = (0+2080+30000)+2;
-	cx = 0;
-exloop:
-	push(cx);
-	push(si);
-	es = data.word(kExtras);
-	push(si);
-	ch = 0;
-	_cmp(es.byte(si), 255);
-	if (flags.z())
-		goto notinroom;
-	al = es.byte(si-2);
-	_cmp(al, data.byte(kReallocation));
-	if (!flags.z())
-		goto notinroom;
-	getmapad();
-notinroom:
-	si = pop();
-	_cmp(ch, 0);
-	if (flags.z())
-		goto blankex;
-	al = data.byte(kCurrentex);
-	ah = 0;
-	dx = ax;
-	_add(ax, ax);
-	_add(ax, dx);
-	data.word(kCurrentframe) = ax;
-	push(es);
-	push(si);
-	calcfrframe();
-	es = data.word(kMapstore);
-	ds = data.word(kFrsegment);
-	finalframe();
-	si = pop();
-	es = pop();
-	_cmp(cx, 0);
-	if (flags.z())
-		goto blankex;
-	ax = data.word(kCurrentframe);
-	ah = 0;
-	_add(di, data.word(kMapadx));
-	_add(bx, data.word(kMapady));
-	showframe();
-	si = data.word(kListpos);
-	es = data.word(kBuffers);
-	al = data.byte(kSavex);
-	ah = data.byte(kSavey);
-	es.word(si) = ax;
-	cx = ax;
-	ax = data.word(kSavesize);
-	_add(al, cl);
-	_add(ah, ch);
-	es.word(si+2) = ax;
-	ax = pop();
-	cx = pop();
-	push(cx);
-	push(ax);
-	es.byte(si+4) = cl;
-	_add(si, 5);
-	data.word(kListpos) = si;
-blankex:
-	_inc(data.byte(kCurrentex));
-	si = pop();
-	cx = pop();
-	_add(si, 16);
-	_inc(cx);
-	_cmp(cx, 100);
-	if (flags.z())
-		return /* (finex) */;
-	goto exloop;
 }
 
 void DreamGenContext::autolook() {
@@ -15201,41 +14915,6 @@ notasetid:
 		goto identifyset;
 }
 
-void DreamGenContext::checkifex() {
-	STACK_CHECK;
-	es = data.word(kBuffers);
-	bx = (0+(228*13)+32+60+(32*32)+(11*10*3)+768+768+768+(32*32)+(128*5)+(80*5))+(99*5);
-	cx = 99;
-identifyex:
-	_cmp(es.byte(bx+4), 255);
-	if (flags.z())
-		goto notanexid;
-	_cmp(al, es.byte(bx));
-	if (flags.c())
-		goto notanexid;
-	_cmp(al, es.byte(bx+2));
-	if (!flags.c())
-		goto notanexid;
-	_cmp(ah, es.byte(bx+1));
-	if (flags.c())
-		goto notanexid;
-	_cmp(ah, es.byte(bx+3));
-	if (!flags.c())
-		goto notanexid;
-	al = es.byte(bx+4);
-	ah = 4;
-	obname();
-	al = 1;
-	_cmp(al, 0);
-	return;
-notanexid:
-	_sub(bx, 5);
-	_dec(cx);
-	_cmp(cx, -1);
-	if (!flags.z())
-		goto identifyex;
-}
-
 void DreamGenContext::isitdescribed() {
 	STACK_CHECK;
 	push(ax);
@@ -15613,26 +15292,6 @@ void DreamGenContext::examineobtext() {
 	bh = data.byte(kCommandtype);
 	al = 1;
 	commandwithob();
-}
-
-void DreamGenContext::printmessage() {
-	STACK_CHECK;
-	push(dx);
-	push(bx);
-	push(di);
-	ah = 0;
-	_add(ax, ax);
-	bx = ax;
-	es = data.word(kCommandtext);
-	ax = es.word(bx);
-	_add(ax, (66*2));
-	si = ax;
-	di = pop();
-	bx = pop();
-	dx = pop();
-	al = 0;
-	ah = 0;
-	printdirect();
 }
 
 void DreamGenContext::printmessage2() {
@@ -17968,7 +17627,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_copper: copper(); break;
 		case addr_sparky: sparky(); break;
 		case addr_train: train(); break;
-		case addr_addtopeoplelist: addtopeoplelist(); break;
 		case addr_checkspeed: checkspeed(); break;
 		case addr_delsprite: delsprite(); break;
 		case addr_mainman: mainman(); break;
@@ -17994,16 +17652,11 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_showpcx: showpcx(); break;
 		case addr_loadpalfromiff: loadpalfromiff(); break;
 		case addr_setmode: setmode(); break;
-		case addr_paneltomap: paneltomap(); break;
-		case addr_maptopanel: maptopanel(); break;
-		case addr_dumpmap: dumpmap(); break;
 		case addr_pixelcheckset: pixelcheckset(); break;
 		case addr_createpanel: createpanel(); break;
 		case addr_createpanel2: createpanel2(); break;
 		case addr_vsync: vsync(); break;
 		case addr_doshake: doshake(); break;
-		case addr_delthisone: delthisone(); break;
-		case addr_transferinv: transferinv(); break;
 		case addr_transfermap: transfermap(); break;
 		case addr_fadedos: fadedos(); break;
 		case addr_dofade: dofade(); break;
@@ -18067,7 +17720,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_openob: openob(); break;
 		case addr_obicons: obicons(); break;
 		case addr_examicon: examicon(); break;
-		case addr_obpicture: obpicture(); break;
 		case addr_describeob: describeob(); break;
 		case addr_additionaltext: additionaltext(); break;
 		case addr_obsthatdothings: obsthatdothings(); break;
@@ -18108,7 +17760,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_pickupconts: pickupconts(); break;
 		case addr_transfercontoex: transfercontoex(); break;
 		case addr_transfertext: transfertext(); break;
-		case addr_getexpos: getexpos(); break;
 		case addr_purgealocation: purgealocation(); break;
 		case addr_emergencypurge: emergencypurge(); break;
 		case addr_purgeanitem: purgeanitem(); break;
@@ -18117,7 +17768,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_deleteextext: deleteextext(); break;
 		case addr_blockget: blockget(); break;
 		case addr_drawfloor: drawfloor(); break;
-		case addr_showallex: showallex(); break;
 		case addr_autolook: autolook(); break;
 		case addr_look: look(); break;
 		case addr_dolook: dolook(); break;
@@ -18445,7 +18095,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_madmanrun: madmanrun(); break;
 		case addr_identifyob: identifyob(); break;
 		case addr_checkifset: checkifset(); break;
-		case addr_checkifex: checkifex(); break;
 		case addr_isitdescribed: isitdescribed(); break;
 		case addr_findpathofpoint: findpathofpoint(); break;
 		case addr_findfirstpath: findfirstpath(); break;
@@ -18459,7 +18108,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_walkintoroom: walkintoroom(); break;
 		case addr_afterintroroom: afterintroroom(); break;
 		case addr_examineobtext: examineobtext(); break;
-		case addr_printmessage: printmessage(); break;
 		case addr_printmessage2: printmessage2(); break;
 		case addr_setwalk: setwalk(); break;
 		case addr_bresenhams: bresenhams(); break;

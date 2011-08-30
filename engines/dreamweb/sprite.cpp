@@ -549,16 +549,16 @@ void DreamGenContext::showreelframe(Reel *reel) {
 }
 
 void DreamGenContext::showgamereel() {
-	uint16 reelpointer = es.word(bx+3);
+	showgamereel((ReelRoutine *)es.ptr(bx, sizeof(ReelRoutine)));
+}
+
+void DreamGenContext::showgamereel(ReelRoutine *routine) {
+	uint16 reelpointer = routine->reelPointer();
 	if (reelpointer >= 512)
 		return;
 	data.word(kReelpointer) = reelpointer;
-	push(es);
-	push(bx);
 	plotreel();
-	bx = pop();
-	es = pop();
-	es.word(bx+3) = data.word(kReelpointer);
+	routine->setReelPointer(data.word(kReelpointer));
 }
 
 const Frame *DreamGenContext::getreelframeax(uint16 frame) {
@@ -887,6 +887,20 @@ void DreamGenContext::checkone(uint8 x, uint8 y, uint8 *flag, uint8 *flagEx, uin
 	*flag = tileData[0];
 	*flagEx = tileData[1];
 	*type = tileData[2];
+}
+
+void DreamGenContext::addtopeoplelist() {
+	addtopeoplelist((ReelRoutine *)es.ptr(bx, sizeof(ReelRoutine)));
+}
+
+void DreamGenContext::addtopeoplelist(ReelRoutine *routine) {
+	uint16 routinePointer = (const uint8 *)routine - cs.ptr(0, 0);
+
+	People *people = (People *)segRef(data.word(kBuffers)).ptr(data.word(kListpos), sizeof(People));
+	people->setReelPointer(routine->reelPointer());
+	people->setRoutinePointer(routinePointer);
+	people->b4 = routine->b7;
+	data.word(kListpos) += sizeof(People);
 }
 
 } /*namespace dreamgen */

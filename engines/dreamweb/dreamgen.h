@@ -105,7 +105,6 @@ public:
 	static const uint16 addr_bresenhams = 0xca50;
 	static const uint16 addr_setwalk = 0xca44;
 	static const uint16 addr_printmessage2 = 0xca30;
-	static const uint16 addr_printmessage = 0xca2c;
 	static const uint16 addr_examineobtext = 0xca20;
 	static const uint16 addr_afterintroroom = 0xca14;
 	static const uint16 addr_walkintoroom = 0xca10;
@@ -119,7 +118,6 @@ public:
 	static const uint16 addr_findfirstpath = 0xc9f0;
 	static const uint16 addr_findpathofpoint = 0xc9ec;
 	static const uint16 addr_isitdescribed = 0xc9e8;
-	static const uint16 addr_checkifex = 0xc9e0;
 	static const uint16 addr_checkifset = 0xc9dc;
 	static const uint16 addr_identifyob = 0xc9d4;
 	static const uint16 addr_madmanrun = 0xc9cc;
@@ -448,7 +446,6 @@ public:
 	static const uint16 addr_dolook = 0xc474;
 	static const uint16 addr_look = 0xc470;
 	static const uint16 addr_autolook = 0xc46c;
-	static const uint16 addr_showallex = 0xc450;
 	static const uint16 addr_drawfloor = 0xc428;
 	static const uint16 addr_blockget = 0xc424;
 	static const uint16 addr_deleteextext = 0xc420;
@@ -457,7 +454,6 @@ public:
 	static const uint16 addr_purgeanitem = 0xc414;
 	static const uint16 addr_emergencypurge = 0xc410;
 	static const uint16 addr_purgealocation = 0xc40c;
-	static const uint16 addr_getexpos = 0xc408;
 	static const uint16 addr_transfertext = 0xc404;
 	static const uint16 addr_transfercontoex = 0xc400;
 	static const uint16 addr_pickupconts = 0xc3fc;
@@ -498,7 +494,6 @@ public:
 	static const uint16 addr_obsthatdothings = 0xc36c;
 	static const uint16 addr_additionaltext = 0xc368;
 	static const uint16 addr_describeob = 0xc364;
-	static const uint16 addr_obpicture = 0xc360;
 	static const uint16 addr_examicon = 0xc35c;
 	static const uint16 addr_obicons = 0xc358;
 	static const uint16 addr_openob = 0xc354;
@@ -562,16 +557,11 @@ public:
 	static const uint16 addr_dofade = 0xc24c;
 	static const uint16 addr_fadedos = 0xc248;
 	static const uint16 addr_transfermap = 0xc244;
-	static const uint16 addr_transferinv = 0xc240;
-	static const uint16 addr_delthisone = 0xc214;
 	static const uint16 addr_doshake = 0xc20c;
 	static const uint16 addr_vsync = 0xc208;
 	static const uint16 addr_createpanel2 = 0xc200;
 	static const uint16 addr_createpanel = 0xc1fc;
 	static const uint16 addr_pixelcheckset = 0xc1f8;
-	static const uint16 addr_dumpmap = 0xc1f4;
-	static const uint16 addr_maptopanel = 0xc1f0;
-	static const uint16 addr_paneltomap = 0xc1ec;
 	static const uint16 addr_setmode = 0xc1dc;
 	static const uint16 addr_loadpalfromiff = 0xc1d8;
 	static const uint16 addr_showpcx = 0xc1cc;
@@ -597,7 +587,6 @@ public:
 	static const uint16 addr_mainman = 0xc138;
 	static const uint16 addr_delsprite = 0xc11c;
 	static const uint16 addr_checkspeed = 0xc110;
-	static const uint16 addr_addtopeoplelist = 0xc108;
 	static const uint16 addr_train = 0xc104;
 	static const uint16 addr_sparky = 0xc100;
 	static const uint16 addr_copper = 0xc0fc;
@@ -1299,7 +1288,7 @@ public:
 	//void lockeddoorway();
 	void isitworn();
 	//void putundertimed();
-	void dumpmap();
+	//void dumpmap();
 	//void multidump();
 	void channel0only();
 	void worktoscreenm();
@@ -1339,7 +1328,7 @@ public:
 	//void clearwork();
 	void loadtraveltext();
 	//void worktoscreen();
-	void getexpos();
+	//void getexpos();
 	void fadedos();
 	//void fillspace();
 	void selectlocation();
@@ -1414,7 +1403,7 @@ public:
 	void showdiary();
 	void purgealocation();
 	//void updatepeople();
-	void addtopeoplelist();
+	//void addtopeoplelist();
 	void hangoncurs();
 	void sparkydrip();
 	void compare();
@@ -1461,7 +1450,7 @@ public:
 	void runtap();
 	//void domix();
 	void priesttext();
-	void paneltomap();
+	//void paneltomap();
 	//void obname();
 	void getridoftemp3();
 	void getridoftemp2();
@@ -1470,7 +1459,7 @@ public:
 	void dumpdiarykeys();
 	void disablesoundint();
 	void checkifset();
-	void showallex();
+	//void showallex();
 	void openpoolboss();
 	void buttontwo();
 	//void usetimedtext();
@@ -1524,7 +1513,7 @@ public:
 	void usetempcharset();
 	void discops();
 	//void printdirect();
-	void delthisone();
+	//void delthisone();
 	//void makebackob();
 	void middlepanel();
 	void dumpwatch();
@@ -1548,7 +1537,7 @@ public:
 	void monks2text();
 	void clearpalette();
 	void cantdrop();
-	void maptopanel();
+	//void maptopanel();
 	//void calcmapad();
 	void getridofall();
 	void copper();
@@ -1615,7 +1604,7 @@ public:
 	void errormessage3();
 	//void deletetaken();
 	void putundermenu();
-	void checkifex();
+	void intromonks2();
 	void intromagic2();
 	void intromagic3();
 	void edeninbath();
@@ -1783,7 +1772,7 @@ public:
 	void look();
 	void setmouse();
 	//void checkone();
-	void transferinv();
+	//void transferinv();
 	void candles2();
 	void pickupob();
 	void error();
@@ -1876,7 +1865,7 @@ public:
 	void settopleft();
 	void searchforstring();
 	//void clearsprites();
-	void obpicture();
+	//void obpicture();
 	void selectopenob();
 	//void widedoor();
 	void security();
@@ -1931,6 +1920,7 @@ public:
 	void delcurs();
 	void randomaccess();
 	void splitintolines();
+	//void checkifex();
 	//void findobname();
 	void initialmoncols();
 	void checkforshake();
@@ -1961,7 +1951,6 @@ public:
 	//void parseblaster();
 	//void readmouse1();
 	void makemainscreen();
-	void intromonks2();
 	void usewinch();
 	void setbotright();
 	//void readmouse3();
@@ -2017,7 +2006,7 @@ public:
 	void loadsecondsample();
 	void transfercontoex();
 	//void multiput();
-	void printmessage();
+	//void printmessage();
 	void businessman();
 	void switchryanoff();
 	//void commandwithob();

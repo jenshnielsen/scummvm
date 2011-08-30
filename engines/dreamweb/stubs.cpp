@@ -935,7 +935,11 @@ void DreamGenContext::plotreel() {
 			showreelframe(reel);
 		++reel;
 	}
+	push(es);
+	push(bx);
 	soundonreels();
+	bx = pop();
+	es = pop();
 }
 
 void DreamGenContext::crosshair() {
@@ -981,7 +985,7 @@ bool DreamGenContext::checkifperson(uint8 x, uint8 y) {
 	for (size_t i = 0; i < 12; ++i, ++people) {
 		if (people->b4 == 255)
 			continue;
-		data.word(kReelpointer) = people->w0();
+		data.word(kReelpointer) = people->reelPointer();
 		Reel *reel = getreelstart();
 		if (reel->frame() == 0xffff)
 			++reel;
@@ -998,7 +1002,7 @@ bool DreamGenContext::checkifperson(uint8 x, uint8 y) {
 			continue;
 		if (y >= ymax)
 			continue;
-		data.word(kPersondata) = people->w2();
+		data.word(kPersondata) = people->routinePointer();
 		obname(people->b4, 5);
 		return true;
 	}
@@ -1024,6 +1028,30 @@ bool DreamGenContext::checkiffree(uint8 x, uint8 y) {
 		if (y >= objPos->yMax)
 			continue;
 		obname(objPos->index, 2);
+		return true;
+	}
+	return false;
+}
+
+void DreamGenContext::checkifex() {
+	flags._z = not checkifex(al, ah);
+}
+
+bool DreamGenContext::checkifex(uint8 x, uint8 y) {
+	const ObjPos *exList = (const ObjPos *)segRef(data.word(kBuffers)).ptr(kExlist, 100 * sizeof(ObjPos));
+	for (size_t i = 0; i < 100; ++i) {
+		const ObjPos *objPos = exList + 99 - i;
+		if (objPos->index == 0xff)
+			continue;
+		if (x < objPos->xMin)
+			continue;
+		if (x >= objPos->xMax)
+			continue;
+		if (y < objPos->yMin)
+			continue;
+		if (y >= objPos->yMax)
+			continue;
+		obname(objPos->index, 4);
 		return true;
 	}
 	return false;
@@ -1170,11 +1198,11 @@ void DreamGenContext::dochange() {
 
 void DreamGenContext::dochange(uint8 index, uint8 value, uint8 type) {
 	if (type == 0) { //object
-		getsetad(index)->b58[0] = value;
+		getsetad(index)->mapad[0] = value;
 	} else if (type == 1) { //freeobject
 		DynObject *freeObject = getfreead(index);
-		if (freeObject->b2 == 0xff)
-			freeObject->b2 = value;
+		if (freeObject->mapad[0] == 0xff)
+			freeObject->mapad[0] = value;
 	} else { //path
 		bx = kPathdata + (type - 100) * 144 + index * 8;
 		es = data.word(kReels);
@@ -1186,12 +1214,23 @@ void DreamGenContext::deletetaken() {
 	const DynObject *extraObjects = (const DynObject *)segRef(data.word(kExtras)).ptr(kExdata, 0);
 	DynObject *freeObjects = (DynObject *)segRef(data.word(kFreedat)).ptr(0, 0);
 	for(size_t i = 0; i < kNumexobjects; ++i) {
-		uint8 location = extraObjects[i].location;
+		uint8 location = extraObjects[i].initialLocation;
 		if (location == data.byte(kReallocation)) {
 			uint8 index = extraObjects[i].index;
-			freeObjects[index].b2 = 254;
+			freeObjects[index].mapad[0] = 0xfe;
 		}
 	}
+}
+
+void DreamGenContext::getexpos() {
+	const DynObject *objects = (const DynObject *)segRef(data.word(kExtras)).ptr(kExdata, sizeof(DynObject));
+	for (size_t i = 0; i < kNumexobjects; ++i) {
+		if (objects[i].mapad[0] == 0xff) {
+			data.byte(kExpos) = i;
+			return;
+		}
+	}
+	data.byte(kExpos) = kNumexobjects;
 }
 
 void DreamGenContext::placesetobject() {
@@ -1200,7 +1239,7 @@ void DreamGenContext::placesetobject() {
 
 void DreamGenContext::placesetobject(uint8 index) {
 	findormake(index, 0, 0);
-	getsetad(index)->b58[0] = 0;
+	getsetad(index)->mapad[0] = 0;
 }
 
 void DreamGenContext::removesetobject() {
@@ -1209,7 +1248,7 @@ void DreamGenContext::removesetobject() {
 
 void DreamGenContext::removesetobject(uint8 index) {
 	findormake(index, 0xff, 0);
-	getsetad(index)->b58[0] = 0xff;
+	getsetad(index)->mapad[0] = 0xff;
 }
 
 void DreamGenContext::finishedwalking() {
@@ -1616,6 +1655,28 @@ void DreamGenContext::animpointer() {
 		return;
 	}
 	data.byte(kPointerframe) = 8;
+}
+
+void DreamGenContext::printmessage() {
+	printmessage(di, bx, al, dl, (bool)(dl & 1));
+}
+
+void DreamGenContext::printmessage(uint16 x, uint16 y, uint8 index, uint8 maxWidth, bool centered) {
+	uint16 offset = kTextstart + segRef(data.word(kCommandtext)).word(index * 2);
+	const uint8 *string = segRef(data.word(kCommandtext)).ptr(offset, 0);
+	printdirect(&string, x, &y, maxWidth, centered);
+}
+
+void DreamGenContext::obpicture() {
+	if (data.byte(kObjecttype) == 1)
+		return;
+	Frame *frames;
+	if (data.byte(kObjecttype) == 4)
+		frames = (Frame *)segRef(data.word(kExtras)).ptr(0, 0);
+	else
+		frames = (Frame *)segRef(data.word(kFreeframes)).ptr(0, 0);
+	uint8 frame = 3 * data.byte(kCommand) + 1;
+	showframe(frames, 160, 68, frame, 0x80);
 }
 
 bool DreamGenContext::isCD() {
