@@ -25,7 +25,7 @@
 	void clearwork();
 	void multidump();
 	void multidump(uint16 x, uint16 y, uint8 width, uint8 height);
-	void frameoutv(uint8 *dst, const uint8 *src, uint16 pitch, uint16 width, uint16 height, uint16 x, uint16 y);
+	void frameoutv(uint8 *dst, const uint8 *src, uint16 pitch, uint16 width, uint16 height, int16 x, int16 y);
 	void frameoutnm(uint8 *dst, const uint8 *src, uint16 pitch, uint16 width, uint16 height, uint16 x, uint16 y);
 	void frameoutbh(uint8 *dst, const uint8 *src, uint16 pitch, uint16 width, uint16 height, uint16 x, uint16 y);
 	void frameoutfx(uint8 *dst, const uint8 *src, uint16 pitch, uint16 width, uint16 height, uint16 x, uint16 y);
@@ -84,7 +84,7 @@
 	void facerightway();
 	void walking(Sprite *sprite);
 	void autosetwalk();
-	void checkdest(const uint8 *roomsPaths);
+	void checkdest(const RoomPaths *roomsPaths);
 	void aboutturn(Sprite *sprite);
 	void backobject(Sprite *sprite);
 	void constant(Sprite *sprite, SetObject *objData);
@@ -103,10 +103,16 @@
 	void showreelframe();
 	void showreelframe(Reel *reel);
 	const Frame *getreelframeax(uint16 frame);
-	void turnpathonCPP(uint8 param);
-	void turnpathoffCPP(uint8 param);
+	void turnpathon(uint8 param);
+	void turnpathoff(uint8 param);
+	void turnpathon();
+	void turnpathoff();
+	void turnanypathon(uint8 param, uint8 room);
+	void turnanypathoff(uint8 param, uint8 room);
+	void turnanypathon();
+	void turnanypathoff();
 	void getroomspaths();
-	uint8 *getroomspathsCPP();
+	RoomPaths *getroomspathsCPP();
 	void makebackob(SetObject *objData);
 	void modifychar();
 	void lockmon();
@@ -162,6 +168,8 @@
 	DynObject *getexad(uint8 index);
 	DynObject *geteitheradCPP();
 	SetObject *getsetad(uint8 index);
+	void *getanyad(uint8 *value1, uint8 *value2);
+	void *getanyaddir(uint8 index, uint8 flag);
 	void setallchanges();
 	void dochange();
 	void dochange(uint8 index, uint8 value, uint8 type);
@@ -205,4 +213,10 @@
 	void dumpmap();
 	void obpicture();
 	void transferinv();
+	void obicons();
+	void compare();
+	bool compare(uint8 index, uint8 flag, const char id[4]);
+	void pixelcheckset();
+	bool pixelcheckset(ObjPos *pos, uint8 x, uint8 y);
+
 

@@ -297,7 +297,7 @@ void DreamGenContext::constant(Sprite *sprite, SetObject *objData) {
 		sprite->frame = 0;
 	}
 	uint8 b18 = objData->b18[sprite->frame];
-	objData->b17 = b18;
+	objData->index = b18;
 	sprite->b15 = b18;
 }
 
@@ -361,7 +361,7 @@ void DreamGenContext::dodoor(Sprite *sprite, SetObject *objData) {
 	if (objData->b18[sprite->frame] == 255) {
 		--sprite->frame;
 	}
-	sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+	sprite->b15 = objData->index = objData->b18[sprite->frame];
 	data.byte(kThroughdoor) = 1;
 	return;
 shutdoor:
@@ -375,14 +375,14 @@ shutdoor:
 	if (sprite->frame != 0) {
 		--sprite->frame;
 	}
-	sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+	sprite->b15 = objData->index = objData->b18[sprite->frame];
 	if (sprite->frame == 5) //nearly
 		data.byte(kThroughdoor) = 0;
 }
 
 void DreamGenContext::steady(Sprite *sprite, SetObject *objData) {
 	uint8 b18 = objData->b18[0];
-	objData->b17 = b18;
+	objData->index = b18;
 	sprite->b15 = b18;
 }
 
@@ -414,7 +414,7 @@ void DreamGenContext::lockeddoorway(Sprite *sprite, SetObject *objData) {
 	}
 
 	if (sprite->frame == 6) {
-		turnpathonCPP(data.byte(kDoorpath));
+		turnpathon(data.byte(kDoorpath));
 	}
 
 	if ((data.byte(kThroughdoor) == 1) && (sprite->frame == 0)) {
@@ -426,7 +426,7 @@ void DreamGenContext::lockeddoorway(Sprite *sprite, SetObject *objData) {
 		--sprite->frame;
 	}
 
-	sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+	sprite->b15 = objData->index = objData->b18[sprite->frame];
 	if (sprite->frame == 5)
 		data.byte(kThroughdoor) = 1;
 	return;
@@ -442,10 +442,10 @@ shutdoor2:
 	}
 
 	data.byte(kThroughdoor) = 0;
-	sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+	sprite->b15 = objData->index = objData->b18[sprite->frame];
 
 	if (sprite->frame == 0) {
-		turnpathoffCPP(data.byte(kDoorpath));
+		turnpathoff(data.byte(kDoorpath));
 		data.byte(kLockstatus) = 1;
 	}
 }
@@ -453,7 +453,7 @@ shutdoor2:
 void DreamGenContext::liftsprite(Sprite *sprite, SetObject *objData) {
 	uint8 liftFlag = data.byte(kLiftflag);
 	if (liftFlag == 0) { //liftclosed
-		turnpathoffCPP(data.byte(kLiftpath));
+		turnpathoff(data.byte(kLiftpath));
 
 		if (data.byte(kCounttoopen) != 0) {
 			_dec(data.byte(kCounttoopen));
@@ -461,10 +461,10 @@ void DreamGenContext::liftsprite(Sprite *sprite, SetObject *objData) {
 				data.byte(kLiftflag) = 3;
 		}
 		sprite->frame = 0;
-		sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+		sprite->b15 = objData->index = objData->b18[sprite->frame];
 	}
 	else if (liftFlag == 1) {  //liftopen
-		turnpathonCPP(data.byte(kLiftpath));
+		turnpathon(data.byte(kLiftpath));
 
 		if (data.byte(kCounttoclose) != 0) {
 			_dec(data.byte(kCounttoclose));
@@ -472,7 +472,7 @@ void DreamGenContext::liftsprite(Sprite *sprite, SetObject *objData) {
 				data.byte(kLiftflag) = 2;
 		}
 		sprite->frame = 12;
-		sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+		sprite->b15 = objData->index = objData->b18[sprite->frame];
 	}	
 	else if (liftFlag == 3) { //openlift
 		if (sprite->frame == 12) {
@@ -484,7 +484,7 @@ void DreamGenContext::liftsprite(Sprite *sprite, SetObject *objData) {
 			al = 2;
 			liftnoise();
 		}
-		sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+		sprite->b15 = objData->index = objData->b18[sprite->frame];
 	} else { //closeLift
 		assert(liftFlag == 2);
 		if (sprite->frame == 0) {
@@ -496,13 +496,13 @@ void DreamGenContext::liftsprite(Sprite *sprite, SetObject *objData) {
 			al = 3;
 			liftnoise();
 		}
-		sprite->b15 = objData->b17 = objData->b18[sprite->frame];
+		sprite->b15 = objData->index = objData->b18[sprite->frame];
 	}
 }
 
 void DreamGenContext::facerightway() {
-	uint8 *paths = getroomspathsCPP();
-	uint8 dir = paths[8 * data.byte(kManspath) + 7];
+	PathNode *paths = getroomspathsCPP()->nodes;
+	uint8 dir = paths[data.byte(kManspath)].dir;
 	data.byte(kTurntoface) = dir;
 	data.byte(kLeavedirection) = dir;
 }

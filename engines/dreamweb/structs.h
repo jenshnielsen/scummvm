@@ -85,7 +85,7 @@ struct SetObject {
 	uint8 b11;
 	uint8 name[4];
 	uint8 b16;
-	uint8 b17;
+	uint8 index;
 	uint8 b18[13]; // NB: Don't know the size yet
 	uint8 b31;
 	uint8 b32;
@@ -228,4 +228,24 @@ struct Change {
 	uint8 type;
 };
 
+struct PathNode {
+	uint8 x;
+	uint8 y;
+	uint8 b2;
+	uint8 b3;
+	uint8 b4;
+	uint8 b5;
+	uint8 b6;
+	uint8 dir;
+};
+
+struct PathSegment {
+	uint8 b0;
+	uint8 b1;
+};
+
+struct RoomPaths {
+	PathNode    nodes[12];
+	PathSegment segments[24];
+};
 

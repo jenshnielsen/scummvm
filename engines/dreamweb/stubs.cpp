@@ -1188,6 +1188,34 @@ DynObject *DreamGenContext::geteitheradCPP() {
 		return getfreead(data.byte(kItemframe));
 }
 
+void *DreamGenContext::getanyad(uint8 *value1, uint8 *value2) {
+	if (data.byte(kObjecttype) == 4) {
+		DynObject *exObject = getexad(data.byte(kCommand));
+		*value1 = exObject->b7;
+		*value2 = exObject->b8;
+		return exObject;
+	} else if (data.byte(kObjecttype) == 2) {
+		DynObject *freeObject = getfreead(data.byte(kCommand));
+		*value1 = freeObject->b7;
+		*value2 = freeObject->b8;
+		return freeObject;
+	} else {
+		SetObject *setObject = getsetad(data.byte(kCommand));
+		*value1 = setObject->b4;
+		*value2 = setObject->priority;
+		return setObject;
+	}
+}
+
+void *DreamGenContext::getanyaddir(uint8 index, uint8 flag) {
+	if (flag == 4)
+		return getexad(index);
+	else if (flag == 2)
+		return getfreead(index);
+	else
+		return getsetad(index);
+}
+
 SetObject *DreamGenContext::getsetad(uint8 index) {
 	return (SetObject *)segRef(data.word(kSetdat)).ptr(0, 0) + index;
 }
@@ -1223,14 +1251,17 @@ void DreamGenContext::deletetaken() {
 }
 
 void DreamGenContext::getexpos() {
+	es = data.word(kExtras);
 	const DynObject *objects = (const DynObject *)segRef(data.word(kExtras)).ptr(kExdata, sizeof(DynObject));
 	for (size_t i = 0; i < kNumexobjects; ++i) {
 		if (objects[i].mapad[0] == 0xff) {
 			data.byte(kExpos) = i;
+			di = kExdata + i * sizeof(DynObject);
 			return;
 		}
 	}
 	data.byte(kExpos) = kNumexobjects;
+	di = kExdata + kNumexobjects * sizeof(DynObject);
 }
 
 void DreamGenContext::placesetobject() {
@@ -1583,9 +1614,11 @@ void DreamGenContext::showpointer() {
 			height = 12;
 		data.byte(kPointerxs) = width;
 		data.byte(kPointerys) = height;
-		data.word(kOldpointerx) -= width / 2;
-		data.word(kOldpointery) -= height / 2;
-		multiget(segRef(data.word(kBuffers)).ptr(kPointerback, 0), x - width / 2, y - height / 2, width, height);
+		uint16 xMin = (x >= width / 2) ? x - width / 2 : 0;
+		uint16 yMin = (y >= height / 2) ? y - height / 2 : 0;
+		data.word(kOldpointerx) = xMin;
+		data.word(kOldpointery) = yMin;
+		multiget(segRef(data.word(kBuffers)).ptr(kPointerback, 0), xMin, yMin, width, height);
 		showframe(frames, x, y, 3 * data.byte(kItemframe) + 1, 128);
 		showframe(icons1, x, y, 3, 128);
 	} else {
@@ -1677,6 +1710,31 @@ void DreamGenContext::obpicture() {
 		frames = (Frame *)segRef(data.word(kFreeframes)).ptr(0, 0);
 	uint8 frame = 3 * data.byte(kCommand) + 1;
 	showframe(frames, 160, 68, frame, 0x80);
+}
+
+void DreamGenContext::obicons() {
+	uint8 value1, value2;
+	getanyad(&value1, &value2);
+	if (value1 == 0xff) {
+		showframe((Frame *)segRef(data.word(kIcons2)).ptr(0, 0), 260, 1, 1, 0);
+	} else {
+		showframe((Frame *)segRef(data.word(kIcons2)).ptr(0, 0), 210, 1, 4, 0);
+	}
+}
+
+void DreamGenContext::compare() {
+	char id[4] = { cl, ch, dl, dh };
+	flags._z = compare(al, ah, id);
+}
+
+bool DreamGenContext::compare(uint8 index, uint8 flag, const char id[4]) {
+	void *ptr = getanyaddir(index, flag);
+	const char *objId = (const char *)(((const uint8 *)ptr) + 12); // whether it is a DynObject or a SetObject
+	for (size_t i = 0; i < 4; ++i) {
+		if(id[i] != objId[i] + 'A')
+			return false;
+	}
+	return true;
 }
 
 bool DreamGenContext::isCD() {

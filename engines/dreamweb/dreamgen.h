@@ -111,10 +111,6 @@ public:
 	static const uint16 addr_atmospheres = 0xca0c;
 	static const uint16 addr_afternewroom = 0xca08;
 	static const uint16 addr_checkifpathison = 0xca04;
-	static const uint16 addr_turnanypathoff = 0xca00;
-	static const uint16 addr_turnanypathon = 0xc9fc;
-	static const uint16 addr_turnpathoff = 0xc9f8;
-	static const uint16 addr_turnpathon = 0xc9f4;
 	static const uint16 addr_findfirstpath = 0xc9f0;
 	static const uint16 addr_findpathofpoint = 0xc9ec;
 	static const uint16 addr_isitdescribed = 0xc9e8;
@@ -297,7 +293,6 @@ public:
 	static const uint16 addr_isryanholding = 0xc6cc;
 	static const uint16 addr_findexobject = 0xc6c8;
 	static const uint16 addr_findsetobject = 0xc6c4;
-	static const uint16 addr_compare = 0xc6c0;
 	static const uint16 addr_selectob = 0xc6bc;
 	static const uint16 addr_withwhat = 0xc6b8;
 	static const uint16 addr_useelvdoor = 0xc6b4;
@@ -495,7 +490,6 @@ public:
 	static const uint16 addr_additionaltext = 0xc368;
 	static const uint16 addr_describeob = 0xc364;
 	static const uint16 addr_examicon = 0xc35c;
-	static const uint16 addr_obicons = 0xc358;
 	static const uint16 addr_openob = 0xc354;
 	static const uint16 addr_showryanpage = 0xc350;
 	static const uint16 addr_openinv = 0xc34c;
@@ -561,7 +555,6 @@ public:
 	static const uint16 addr_vsync = 0xc208;
 	static const uint16 addr_createpanel2 = 0xc200;
 	static const uint16 addr_createpanel = 0xc1fc;
-	static const uint16 addr_pixelcheckset = 0xc1f8;
 	static const uint16 addr_setmode = 0xc1dc;
 	static const uint16 addr_loadpalfromiff = 0xc1d8;
 	static const uint16 addr_showpcx = 0xc1cc;
@@ -1278,7 +1271,6 @@ public:
 	void uselighter();
 	void showmenu();
 	void usepoolreader();
-	void showgroup();
 	void startdmablock();
 	void useopenbox();
 	void clearbuffers();
@@ -1292,6 +1284,7 @@ public:
 	//void multidump();
 	void channel0only();
 	void worktoscreenm();
+	//void obicons();
 	void removeemm();
 	//void frameoutbh();
 	void getobtextstart();
@@ -1310,7 +1303,7 @@ public:
 	void bresenhams();
 	void getbackfromops();
 	//void frameoutv();
-	void opensarters();
+	void showbyte();
 	void screenupdate();
 	//void addlength();
 	void wornerror();
@@ -1322,7 +1315,7 @@ public:
 	void mainscreen();
 	void watchreel();
 	void showfolder();
-	void turnanypathoff();
+	//void turnanypathoff();
 	void openfilefromc();
 	void gettime();
 	//void clearwork();
@@ -1347,7 +1340,7 @@ public:
 	void opentomb();
 	//void makename();
 	void buttonfour();
-	void dosometalk();
+	void restoreall();
 	//void lockmon();
 	//void dochange();
 	void getanyaddir();
@@ -1359,7 +1352,7 @@ public:
 	void showdiscops();
 	void advisor();
 	void additionaltext();
-	//void kernchars();
+	//void compare();
 	void othersmoker();
 	void dofade();
 	//void setuptimedtemp();
@@ -1406,7 +1399,7 @@ public:
 	//void addtopeoplelist();
 	void hangoncurs();
 	void sparkydrip();
-	void compare();
+	//void kernchars();
 	void printcurs();
 	//void convertkey();
 	void outofopen();
@@ -1423,7 +1416,6 @@ public:
 	//void cancelch1();
 	void loadold();
 	void loadtempcharset();
-	void showbyte();
 	void useslab();
 	void dumpzoom();
 	//void aboutturn();
@@ -1530,7 +1522,7 @@ public:
 	void wearwatch();
 	void runintroseq();
 	//void doblocks();
-	void restoreall();
+	void opensarters();
 	//void delpointer();
 	void attendant();
 	void nextsymbol();
@@ -1619,7 +1611,7 @@ public:
 	void playchannel0();
 	void usemon();
 	void steady();
-	void pixelcheckset();
+	//void pixelcheckset();
 	void reexfrominv();
 	void examinventory();
 	void talk();
@@ -1634,7 +1626,7 @@ public:
 	//void readabyte();
 	//void showframe();
 	void random();
-	void obicons();
+	void mainman();
 	void mansatstill();
 	void channel1only();
 	void checkbasemem();
@@ -1650,7 +1642,7 @@ public:
 	void purgeanitem();
 	void madman();
 	void createpanel();
-	void turnpathon();
+	//void turnpathon();
 	void enablesoundint();
 	void madmanstelly();
 	void constant();
@@ -1768,6 +1760,7 @@ public:
 	void drawitall();
 	void usestereo();
 	void showcurrentfile();
+	//void turnpathoff();
 	//void copyname();
 	void look();
 	void setmouse();
@@ -1832,7 +1825,7 @@ public:
 	void gates();
 	void newgame();
 	void showwatch();
-	void turnanypathon();
+	//void turnanypathon();
 	void restorereels();
 	void setwalk();
 	void useroutine();
@@ -1944,7 +1937,7 @@ public:
 	void usecontrol();
 	void buttonseven();
 	void redrawmainscrn();
-	void turnpathoff();
+	void showgroup();
 	void findallryan();
 	//void channel0tran();
 	void buttonpress();
@@ -1996,6 +1989,7 @@ public:
 	void emergencypurge();
 	void usemenu();
 	void alleybarksound();
+	void dosometalk();
 	void usecart();
 	void intromusic();
 	void quitkey();
@@ -2019,7 +2013,6 @@ public:
 	void accesslightoff();
 	void usehole();
 	void useobject();
-	void mainman();
 	void volumeadjust();
 	//void checkiffree();
 };

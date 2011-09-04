@@ -43,6 +43,8 @@ void DreamGenContext::multiget() {
 }
 
 void DreamGenContext::multiget(uint8 *dst, uint16 x, uint16 y, uint8 w, uint8 h) {
+	assert(x < 320);
+	assert(y < 200);
 	const uint8 *src = workspace() + x + y * kScreenwidth;
 	if (y + h > 200)
 		h = 200 - y;
@@ -64,6 +66,8 @@ void DreamGenContext::multiput() {
 }
 
 void DreamGenContext::multiput(const uint8 *src, uint16 x, uint16 y, uint8 w, uint8 h) {
+	assert(x < 320);
+	assert(y < 200);
 	uint8 *dst = workspace() + x + y * kScreenwidth;
 	if (y + h > 200)
 		h = 200 - y;
@@ -150,11 +154,10 @@ void DreamGenContext::frameoutfx(uint8 *dst, const uint8 *src, uint16 pitch, uin
 
 void DreamGenContext::doshake() {
 	uint8 &counter = data.byte(kShakecounter);
-	_cmp(counter, 48);
-	if (flags.z())
+	if (counter == 48)
 		return;
 
-	_add(counter, 1);
+	++counter;
 	static const int shakeTable[] = {
 		0, -2,  3, -2,  0,  2,  4, -1,
 		1, -3,  3,  2,  0, -2,  3, -2,
@@ -282,11 +285,23 @@ void DreamGenContext::showpcx() {
 	pcxFile.close();
 }
 
-void DreamGenContext::frameoutv(uint8 *dst, const uint8 *src, uint16 pitch, uint16 width, uint16 height, uint16 x, uint16 y) {
+void DreamGenContext::frameoutv(uint8 *dst, const uint8 *src, uint16 pitch, uint16 width, uint16 height, int16 x, int16 y) {
 	// NB : These resilience checks were not in the original engine, but did they result in undefined behaviour
 	// or was something broken during porting to C++?
 	assert(pitch == 320);
 
+	if(x < 0) {
+		assert(width >= -x);
+		width -= -x;
+		src += -x;
+		x = 0;
+	}
+	if(y < 0) {
+		assert(height >= -y);
+		height -= -y;
+		src += (-y) * width;
+		y = 0;
+	}
 	if(x >= 320)
 		return;
 	if(y >= 200)
@@ -438,6 +453,22 @@ void DreamGenContext::transferinv() {
 	memcpy(dst, src, byteCount);
 	exFrame->setPtr(data.word(kExframepos));
 	data.word(kExframepos) += byteCount;
+}
+
+void DreamGenContext::pixelcheckset() {
+	uint8 x = al;
+	uint8 y = ah;
+	ObjPos *pos = (ObjPos *)es.ptr(bx, sizeof(ObjPos));
+	flags._z = !pixelcheckset(pos, x, y);
+}
+
+bool DreamGenContext::pixelcheckset(ObjPos *pos, uint8 x, uint8 y) {
+	x -= pos->xMin;
+	y -= pos->yMin;
+	SetObject *setObject = getsetad(pos->index);
+	Frame *frame = (Frame *)segRef(data.word(kSetframes)).ptr(kFramedata, 0) + setObject->index;
+	const uint8 *ptr = segRef(data.word(kSetframes)).ptr(kFrames, 0) + frame->ptr() + y * frame->width + x;
+	return *ptr != 0;
 }
 
 } /*namespace dreamgen */

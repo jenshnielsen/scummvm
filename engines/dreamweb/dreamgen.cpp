@@ -2657,46 +2657,6 @@ nought:
 		goto palloop;
 }
 
-void DreamGenContext::pixelcheckset() {
-	STACK_CHECK;
-	push(ax);
-	_sub(al, es.byte(bx));
-	_sub(ah, es.byte(bx+1));
-	push(es);
-	push(bx);
-	push(cx);
-	push(ax);
-	al = es.byte(bx+4);
-	getsetad();
-	al = es.byte(bx+17);
-	es = data.word(kSetframes);
-	bx = (0);
-	ah = 0;
-	cx = 6;
-	_mul(cx);
-	_add(bx, ax);
-	ax = pop();
-	push(ax);
-	al = ah;
-	ah = 0;
-	cl = es.byte(bx);
-	ch = 0;
-	_mul(cx);
-	cx = pop();
-	ch = 0;
-	_add(ax, cx);
-	_add(ax, es.word(bx+2));
-	bx = ax;
-	_add(bx, (0+2080));
-	al = es.byte(bx);
-	dl = al;
-	cx = pop();
-	bx = pop();
-	es = pop();
-	ax = pop();
-	_cmp(dl, 0);
-}
-
 void DreamGenContext::createpanel() {
 	STACK_CHECK;
 	di = 0;
@@ -4336,28 +4296,6 @@ void DreamGenContext::openob() {
 	_add(ax, (80));
 	bx = offset_openchangesize;
 	cs.word(bx) = ax;
-}
-
-void DreamGenContext::obicons() {
-	STACK_CHECK;
-	al = data.byte(kCommand);
-	getanyad();
-	_cmp(al, 255);
-	if (flags.z())
-		goto cantopenit;
-	ds = data.word(kIcons2);
-	di = 210;
-	bx = 1;
-	al = 4;
-	ah = 0;
-	showframe();
-cantopenit:
-	ds = data.word(kIcons2);
-	di = 260;
-	bx = 1;
-	al = 1;
-	ah = 0;
-	showframe();
 }
 
 void DreamGenContext::examicon() {
@@ -10557,23 +10495,6 @@ doselob:
 	useroutine();
 }
 
-void DreamGenContext::compare() {
-	STACK_CHECK;
-	_sub(dl, 'A');
-	_sub(dh, 'A');
-	_sub(cl, 'A');
-	_sub(ch, 'A');
-	push(cx);
-	push(dx);
-	getanyaddir();
-	dx = pop();
-	cx = pop();
-	_cmp(es.word(bx+12), cx);
-	if (!flags.z())
-		return /* (comparefin) */;
-	_cmp(es.word(bx+14), dx);
-}
-
 void DreamGenContext::findsetobject() {
 	STACK_CHECK;
 	_sub(al, 'A');
@@ -15025,104 +14946,6 @@ gotfirst:
 	al = es.byte(bx+6);
 }
 
-void DreamGenContext::turnpathon() {
-	STACK_CHECK;
-	push(ax);
-	push(ax);
-	cl = 255;
-	ch = data.byte(kRoomnum);
-	_add(ch, 100);
-	findormake();
-	ax = pop();
-	getroomspaths();
-	ax = pop();
-	_cmp(al, 255);
-	if (flags.z())
-		return /* (nopathon) */;
-	ah = 0;
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(bx, ax);
-	al = 255;
-	es.byte(bx+6) = al;
-}
-
-void DreamGenContext::turnpathoff() {
-	STACK_CHECK;
-	push(ax);
-	push(ax);
-	cl = 0;
-	ch = data.byte(kRoomnum);
-	_add(ch, 100);
-	findormake();
-	ax = pop();
-	getroomspaths();
-	ax = pop();
-	_cmp(al, 255);
-	if (flags.z())
-		return /* (nopathoff) */;
-	ah = 0;
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(bx, ax);
-	al = 0;
-	es.byte(bx+6) = al;
-}
-
-void DreamGenContext::turnanypathon() {
-	STACK_CHECK;
-	push(ax);
-	push(ax);
-	cl = 255;
-	ch = ah;
-	_add(ch, 100);
-	findormake();
-	ax = pop();
-	al = ah;
-	ah = 0;
-	cx = 144;
-	_mul(cx);
-	es = data.word(kReels);
-	bx = (0);
-	_add(bx, ax);
-	ax = pop();
-	ah = 0;
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(bx, ax);
-	al = 255;
-	es.byte(bx+6) = al;
-}
-
-void DreamGenContext::turnanypathoff() {
-	STACK_CHECK;
-	push(ax);
-	push(ax);
-	cl = 0;
-	ch = ah;
-	_add(ch, 100);
-	findormake();
-	ax = pop();
-	al = ah;
-	ah = 0;
-	cx = 144;
-	_mul(cx);
-	es = data.word(kReels);
-	bx = (0);
-	_add(bx, ax);
-	ax = pop();
-	ah = 0;
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(ax, ax);
-	_add(bx, ax);
-	al = 0;
-	es.byte(bx+6) = al;
-}
-
 void DreamGenContext::checkifpathison() {
 	STACK_CHECK;
 	push(ax);
@@ -17652,7 +17475,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_showpcx: showpcx(); break;
 		case addr_loadpalfromiff: loadpalfromiff(); break;
 		case addr_setmode: setmode(); break;
-		case addr_pixelcheckset: pixelcheckset(); break;
 		case addr_createpanel: createpanel(); break;
 		case addr_createpanel2: createpanel2(); break;
 		case addr_vsync: vsync(); break;
@@ -17718,7 +17540,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_openinv: openinv(); break;
 		case addr_showryanpage: showryanpage(); break;
 		case addr_openob: openob(); break;
-		case addr_obicons: obicons(); break;
 		case addr_examicon: examicon(); break;
 		case addr_describeob: describeob(); break;
 		case addr_additionaltext: additionaltext(); break;
@@ -17916,7 +17737,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_useelvdoor: useelvdoor(); break;
 		case addr_withwhat: withwhat(); break;
 		case addr_selectob: selectob(); break;
-		case addr_compare: compare(); break;
 		case addr_findsetobject: findsetobject(); break;
 		case addr_findexobject: findexobject(); break;
 		case addr_isryanholding: isryanholding(); break;
@@ -18098,10 +17918,6 @@ void DreamGenContext::__dispatch_call(uint16 addr) {
 		case addr_isitdescribed: isitdescribed(); break;
 		case addr_findpathofpoint: findpathofpoint(); break;
 		case addr_findfirstpath: findfirstpath(); break;
-		case addr_turnpathon: turnpathon(); break;
-		case addr_turnpathoff: turnpathoff(); break;
-		case addr_turnanypathon: turnanypathon(); break;
-		case addr_turnanypathoff: turnanypathoff(); break;
 		case addr_checkifpathison: checkifpathison(); break;
 		case addr_afternewroom: afternewroom(); break;
 		case addr_atmospheres: atmospheres(); break;
