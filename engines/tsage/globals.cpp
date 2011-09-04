@@ -184,26 +184,46 @@ void Globals::dispatchSounds() {
 namespace BlueForce {
 
 BlueForceGlobals::BlueForceGlobals(): Globals() {
-	_interfaceY = 0;
-	_v51C44 = 1;
-	_dayNumber = 1;
-	_v4CEA4 = 0;
-	_v4CEA8 = 0;
-	_v4CEB8 = 0;
-	_v4CEBA = 0;
-	_driveFromScene = 0;
-	_driveToScene = 0;
-	_v4CF9E = 0;
-	_v4E238 = 0;
-	_v501FC = 0;
-	_v51C42 = 0;
-	_bookmark = bNone;
-	_mapLocationId = 1;
 }
 
 void BlueForceGlobals::synchronize(Serializer &s) {
 	Globals::synchronize(s);
 	error("Sync variables");
+}
+
+void BlueForceGlobals::reset() {
+	Globals::reset();
+	_scenePalette.clearListeners();
+	
+	_scrollFollower = &_player;
+	_bookmark = bNone;
+
+	// Reset the inventory
+	((BlueForceInvObjectList *)_inventory)->reset();
+	BF_GLOBALS._uiElements.updateInventory();
+	BF_GLOBALS._uiElements._scoreValue = 0;
+
+	_mapLocationId = 1;
+	_driveFromScene = 300;
+	_driveToScene = 0;
+
+	_interfaceY = 0;
+	_v51C44 = 1;
+	_dayNumber = 0;
+	_v4CEA4 = 0;
+	_v4CEA8 = 0;
+	_v4CF9E = 0;
+	_v4E238 = 0;
+	_v501FC = 0;
+	_v51C42 = 0;
+	_clip1Bullets = 8;
+	_clip2Bullets = 8;
+}
+
+bool BlueForceGlobals::getHasBullets() {
+	if (!getFlag(fGunLoaded))
+		return false;
+	return BF_GLOBALS.getFlag(fLoadedSpare) ? (_clip2Bullets > 0) : (_clip1Bullets > 0);
 }
 
 } // end of namespace BlueForce
