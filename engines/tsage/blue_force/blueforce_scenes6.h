@@ -20,16 +20,18 @@
  *
  */
 
-#ifndef TSAGE_BLUEFORCE_DIALOGS_H
-#define TSAGE_BLUEFORCE_DIALOGS_H
+#ifndef TSAGE_BLUEFORCE_SCENES6_H
+#define TSAGE_BLUEFORCE_SCENES6_H
 
-#include "gui/options.h"
-#include "tsage/dialogs.h"
+#include "common/scummsys.h"
+#include "tsage/blue_force/blueforce_logic.h"
+#include "tsage/blue_force/blueforce_speakers.h"
+#include "tsage/converse.h"
 #include "tsage/events.h"
-#include "tsage/graphics.h"
-#include "common/list.h"
-#include "common/rect.h"
-#include "common/system.h"
+#include "tsage/core.h"
+#include "tsage/scenes.h"
+#include "tsage/globals.h"
+#include "tsage/sound.h"
 
 namespace TsAGE {
 
@@ -37,52 +39,28 @@ namespace BlueForce {
 
 using namespace TsAGE;
 
-class RightClickDialog : public GfxDialog {
-private:
-	GfxSurface _surface;
-	Visage _btnImages;
-	Rect _rectList1[5];
-	Rect _rectList2[5];
-	Rect _rectList3[5];
-	Rect _rectList4[5];
+class Scene666 : public SceneExt {
+	/* Actions */
+	class Action1 : public Action {
+	public:
+		virtual void signal();
+	};
 
-	int _highlightedAction;
-	int _selectedAction;
+	/* Items */
+	class Item1: public NamedHotspot {
+	public:
+		virtual bool startAction(CursorType action, Event &event);
+	};
 public:
-	RightClickDialog();
-	~RightClickDialog();
+	Action1 _action1;
+	SequenceManager _sequenceManager;
+	NamedObject _object1, _object2, _object3;
+	Item1 _item1;
+	SceneText _text;
 
-	virtual void draw();
-	virtual bool process(Event &event);
-	void execute();
-};
-
-class AmmoBeltDialog : public GfxDialog {
-private:
-	GfxSurface _surface;
-	Visage _cursorImages;
-	Rect _dialogRect, _loadedRect, _gunRect, _clip1Rect, _clip2Rect;
-	CursorType _cursorNum;
-	int _inDialog;
-	bool _closeFlag;
-public:
-	AmmoBeltDialog();
-	~AmmoBeltDialog();
-
-	virtual void draw();
-	virtual bool process(Event &event);
-	void execute();
-};
-
-class RadioConvDialog : public ModalDialog {
-private:
-	GfxButton _buttons[8];
-public:
-	RadioConvDialog();
-	virtual ~RadioConvDialog();
-	int execute();
-
-	static int show();
+	virtual void postInit(SceneObjectList *OwnerList = NULL);
+	virtual void remove();
+	virtual void signal();
 };
 
 } // End of namespace BlueForce

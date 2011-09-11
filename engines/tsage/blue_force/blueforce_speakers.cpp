@@ -150,7 +150,7 @@ void SpeakerSutter::setText(const Common::String &msg) {
 	_object2.setVisage(329);
 	_object2.setStrip2(1);
 	_object2.fixPriority(255);
-	_object1.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 45,
+	_object2.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 45,
 		BF_GLOBALS._sceneManager._scene->_sceneBounds.top + 166));
 
 	VisualSpeaker::setText(msg);
@@ -192,7 +192,7 @@ void SpeakerHarrison::setText(const Common::String &msg) {
 	_object2.fixPriority(255);
 	_object2.setVisage(325);
 	_object2.setStrip2(6);
-	_object1.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 277,
+	_object2.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 277,
 		BF_GLOBALS._sceneManager._scene->_sceneBounds.top + 166));
 
 	VisualSpeaker::setText(msg);
@@ -221,7 +221,7 @@ void SpeakerJakeJacket::setText(const Common::String &msg) {
 	_object2.setVisage(1001);
 	_object2.setStrip2(1);
 	_object2.fixPriority(255);
-	_object1.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + _xp,
+	_object2.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + _xp,
 		BF_GLOBALS._sceneManager._scene->_sceneBounds.top + 166));
 
 	VisualSpeaker::setText(msg);
@@ -250,7 +250,7 @@ void SpeakerJakeUniform::setText(const Common::String &msg) {
 	_object2.setVisage(1001);
 	_object2.setStrip2(1);
 	_object2.fixPriority(255);
-	_object1.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 45,
+	_object2.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 45,
 		BF_GLOBALS._sceneManager._scene->_sceneBounds.top + 166));
 
 	VisualSpeaker::setText(msg);
@@ -279,11 +279,40 @@ void SpeakerJailer::setText(const Common::String &msg) {
 	_object2.setVisage(395);
 	_object2.setStrip(5);
 	_object2.fixPriority(255);
-	_object1.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 40,
+	_object2.setPosition(Common::Point(BF_GLOBALS._sceneManager._scene->_sceneBounds.left + 40,
 		BF_GLOBALS._sceneManager._scene->_sceneBounds.top + 166));
 
 	VisualSpeaker::setText(msg);
 	_object2.fixCountdown(8, _numFrames);
+}
+
+/*--------------------------------------------------------------------------*/
+
+SpeakerPSutter::SpeakerPSutter(): VisualSpeaker() {
+	_color1 = 20;
+	_color2 = 22;
+	_speakerName = "PSUTTER";
+}
+
+void SpeakerPSutter::setText(const Common::String &msg) {
+	_removeObject2 = true;
+
+	_object2.postInit();
+	_object2.setVisage(335);
+	_object2.setStrip2(3);
+	_object2.fixPriority(200);
+	_object2.setPosition(Common::Point(202, 48));
+
+	VisualSpeaker::setText(msg);
+	_object2.fixCountdown(8, _numFrames);
+}
+
+/*--------------------------------------------------------------------------*/
+
+SpeakerJakeRadio::SpeakerJakeRadio(): VisualSpeaker() {
+	_color1 = 13;
+	_color2 = 7;
+	_speakerName = "JAKE_RADIO";
 }
 
 } // End of namespace BlueForce

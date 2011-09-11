@@ -25,6 +25,7 @@
 #include "tsage/blue_force/blueforce_scenes0.h"
 #include "tsage/blue_force/blueforce_scenes1.h"
 #include "tsage/blue_force/blueforce_scenes3.h"
+#include "tsage/blue_force/blueforce_scenes6.h"
 #include "tsage/scenes.h"
 #include "tsage/tsage.h"
 #include "tsage/graphics.h"
@@ -48,9 +49,11 @@ Scene *BlueForceGame::createScene(int sceneNumber) {
 		// Tsunami Title Screen
 		return new Scene20();
 	case 50:
+		// Map screen
 		return new Scene50();
 	case 60:
-		error("Scene group 0 not implemented");
+		// Motorcycle
+		return new Scene60();
 	/* Scene Group #1 */
 	case 100:
 		// Tsnunami Title Screen #2
@@ -87,6 +90,8 @@ Scene *BlueForceGame::createScene(int sceneNumber) {
 		// Inside Police Station
 		return new Scene315();
 	case 325:
+		// Police Station Conference Room
+		return new Scene325();
 	case 330:
 	case 340:
 	case 342:
@@ -113,6 +118,8 @@ Scene *BlueForceGame::createScene(int sceneNumber) {
 	case 600:
 	case 620:
 	case 666:
+		// Death scene
+		return new Scene666();
 	case 690:
 		error("Scene group 6 not implemented");
 	case 710:
@@ -362,7 +369,7 @@ void NamedObject::synchronize(Serializer &s) {
 	s.syncAsSint16LE(_useLineNum);
 }
 
-void NamedObject::startAction(CursorType action, Event &event) {
+bool NamedObject::startAction(CursorType action, Event &event) {
 	bool handled = true;
 
 	switch (action) {
@@ -391,9 +398,10 @@ void NamedObject::startAction(CursorType action, Event &event) {
 
 	if (!handled)
 		((SceneExt *)BF_GLOBALS._sceneManager._scene)->display(action);
+	return handled;
 }
 
-void NamedObject::setup(int resNum, int lookLineNum, int talkLineNum, int useLineNum, int mode, SceneItem *item) {
+void NamedObject::setDetails(int resNum, int lookLineNum, int talkLineNum, int useLineNum, int mode, SceneItem *item) {
 	_resNum = resNum;
 	_lookLineNum = lookLineNum;
 	_talkLineNum = talkLineNum;
@@ -590,6 +598,11 @@ bool SceneExt::display(CursorType action) {
 	}
 
 	return true;
+}
+
+void SceneExt::fadeOut() {
+	uint32 black = 0;
+	BF_GLOBALS._scenePalette.fade((const byte *)&black, false, 100);
 }
 
 void SceneExt::gunDisplay() {

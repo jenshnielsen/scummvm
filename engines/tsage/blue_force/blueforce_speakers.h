@@ -116,6 +116,22 @@ public:
 	virtual void setText(const Common::String &msg);
 };
 
+class SpeakerPSutter: public VisualSpeaker {
+public:
+	SpeakerPSutter();
+
+	virtual Common::String getClassName() { return "SpeakerPSutter"; }
+	virtual void setText(const Common::String &msg);
+};
+
+class SpeakerJakeRadio: public VisualSpeaker {
+public:
+	SpeakerJakeRadio();
+
+	virtual Common::String getClassName() { return "SpeakerJakeRadio"; }
+};
+
+
 } // End of namespace BlueForce
 
 } // End of namespace TsAGE
