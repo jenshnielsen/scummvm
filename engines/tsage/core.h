@@ -440,7 +440,7 @@ public:
 class SceneHotspot : public SceneItem {
 public:
 	SceneHotspot() : SceneItem() {}
-
+	virtual bool startAction(CursorType action, Event &event);
 	virtual Common::String getClassName() { return "SceneHotspot"; }
 	virtual void doAction(int action);
 };
@@ -450,7 +450,8 @@ public:
 	int _resNum, _lookLineNum, _useLineNum, _talkLineNum;
 	NamedHotspot();
 
-	virtual void doAction(int action);
+
+	virtual bool startAction(CursorType action, Event &event);
 	virtual Common::String getClassName() { return "NamedHotspot"; }
 	virtual void synchronize(Serializer &s);
 	virtual void setDetails(int ys, int xs, int ye, int xe, const int resnum, const int lookLineNum, const int useLineNum);
@@ -823,6 +824,7 @@ public:
 		return _regionList[idx - 1];
 	}
 	void proc1(int v) { warning("TODO: WalkRegions::proc1"); }
+	void proc2(int v) { warning("TODO: WalkRegions::proc2"); }
 };
 
 /*--------------------------------------------------------------------------*/

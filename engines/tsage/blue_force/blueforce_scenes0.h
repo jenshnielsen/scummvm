@@ -99,7 +99,7 @@ public:
 
 class Scene60 : public SceneExt {
 	/* Items */
-	class Item2: public NamedHotspot {
+	class Ignition: public NamedHotspot {
 	private:
 		bool check1();
 		bool check2();
@@ -161,7 +161,7 @@ public:
 	SceneObject _dashboard;
 	AltSceneObject _car;
 	NamedHotspot _item1;
-	Item2 _item2;
+	Ignition _ignition;
 	Item3 _item3;
 	Radio _radio;
 	Compartment _compartment;
@@ -175,6 +175,7 @@ public:
 	bool _field1222;
 
 	Scene60();
+	virtual void synchronize(Serializer &s);
 	virtual void postInit(SceneObjectList *OwnerList = NULL);
 	virtual void signal();
 	virtual void dispatch();
