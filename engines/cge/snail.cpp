@@ -415,7 +415,7 @@ void Snail::addCom(SnCom com, int ref, int val, void *ptr) {
 	snc->_cbType = kNullCB;
 	if (com == kSnClear) {
 		_tail = _head;
-		killText();
+		_vm->killText();
 		_timerExpiry = 0;
 	}
 }
@@ -429,7 +429,7 @@ void Snail::addCom2(SnCom com, int ref, int val, CallbackType cbType) {
 	snc->_cbType = cbType;
 	if (com == kSnClear) {
 		_tail = _head;
-		killText();
+		_vm->killText();
 		_timerExpiry = 0;
 	}
 }
@@ -449,7 +449,7 @@ void Snail::insCom(SnCom com, int ref, int val, void *ptr) {
 	snc->_ptr = ptr;
 	if (com == kSnClear) {
 		_tail = _head;
-		killText();
+		_vm->killText();
 		_timerExpiry = 0;
 	}
 }
@@ -565,12 +565,12 @@ void CGEEngine::snSend(Sprite *spr, int val) {
 			spr->_flags._slav = false;
 		} else {
 			if (spr->_ref % 1000 == 0)
-				Bitmap::_pal = _vga->_sysPal;
+				_bitmapPalette = _vga->_sysPal;
 			if (spr->_flags._back)
 				spr->backShow(true);
 			else
 				expandSprite(spr);
-			Bitmap::_pal = NULL;
+			_bitmapPalette = NULL;
 		}
 	}
 }
@@ -956,27 +956,27 @@ void Snail::runCom() {
 				_timerExpiry = 0;
 			} else {
 				if (_textDelay) {
-					killText();
+					_vm->killText();
 					_textDelay = false;
 				}
 			}
-			if (_talk && snc->_com != kSnPause)
+			if (_vm->_talk && snc->_com != kSnPause)
 				break;
 		}
 
-		Sprite *spr = ((snc->_ref >= 0) ? locate(snc->_ref) : ((Sprite *) snc->_ptr));
+		Sprite *spr = ((snc->_ref >= 0) ? _vm->locate(snc->_ref) : ((Sprite *) snc->_ptr));
 		switch (snc->_com) {
 		case kSnLabel:
 			break;
 		case kSnPause    :
 			_timerExpiry = g_system->getMillis() + snc->_val * kSnailFrameDelay;
-			if (_talk)
+			if (_vm->_talk)
 				_textDelay = true;
 			break;
 		case kSnWait:
 			if (spr) {
 				if (spr->seqTest(snc->_val) &&
-					(snc->_val >= 0 || spr != _hero || _hero->_tracePtr < 0)) {
+					(snc->_val >= 0 || spr != _vm->_hero || _vm->_hero->_tracePtr < 0)) {
 					_timerExpiry = g_system->getMillis() + spr->_time * kSnailFrameDelay;
 				} else {
 					_busy = false;
@@ -992,23 +992,23 @@ void Snail::runCom() {
 			break;
 		case kSnSay:
 			if (spr && _talkEnable) {
-				if (spr == _hero && spr->seqTest(-1))
+				if (spr == _vm->_hero && spr->seqTest(-1))
 					spr->step(kSeqHTalk);
-				_text->say(_text->getText(snc->_val), spr);
-				_sys->_funDel = kHeroFun0;
+				_vm->_text->say(_vm->_text->getText(snc->_val), spr);
+				_vm->_sys->_funDel = kHeroFun0;
 			}
 			break;
 		case kSnInf:
 			if (_talkEnable) {
-				_vm->inf(_text->getText(snc->_val));
-				_sys->_funDel = kHeroFun0;
+				_vm->inf(_vm->_text->getText(snc->_val));
+				_vm->_sys->_funDel = kHeroFun0;
 			}
 			break;
 		case kSnTime:
 			if (spr && _talkEnable) {
-				if (spr == _hero && spr->seqTest(-1))
+				if (spr == _vm->_hero && spr->seqTest(-1))
 					spr->step(kSeqHTalk);
-				_text->sayTime(spr);
+				_vm->_text->sayTime(spr);
 			}
 			break;
 		case kSnCave:
@@ -1033,7 +1033,7 @@ void Snail::runCom() {
 			_vm->snCover(spr, snc->_val);
 			break;
 		case kSnUncover:
-			_vm->snUncover(spr, (snc->_val >= 0) ? locate(snc->_val) : ((Sprite *) snc->_ptr));
+			_vm->snUncover(spr, (snc->_val >= 0) ? _vm->locate(snc->_val) : ((Sprite *) snc->_ptr));
 			break;
 		case kSnKeep:
 			_vm->snKeep(spr, snc->_val);
@@ -1136,7 +1136,7 @@ void Snail::runCom() {
 			_vm->snSound(spr, snc->_val);
 			break;
 		case kSnCount:
-			_sound->setRepeat(snc->_val);
+			_vm->_sound->setRepeat(snc->_val);
 			break;
 		case kSnExec:
 			switch (snc->_cbType) {

@@ -60,14 +60,9 @@ public:
 		void *_ptr;
 		CallbackType _cbType;
 	} *_snList;
-	uint8 _head;
-	uint8 _tail;
-	bool _turbo;
-	bool _busy;
-	bool _textDelay;
-	uint32 _timerExpiry;
 	static const char *_comText[];
 	bool _talkEnable;
+
 	Snail(CGEEngine *vm, bool turbo);
 	~Snail();
 	void runCom();
@@ -77,6 +72,12 @@ public:
 	bool idle();
 private:
 	CGEEngine *_vm;
+	bool _turbo;
+	uint8 _head;
+	uint8 _tail;
+	bool _busy;
+	bool _textDelay;
+	uint32 _timerExpiry;
 };
 
 } // End of namespace CGE

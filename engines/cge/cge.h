@@ -40,6 +40,20 @@ namespace CGE {
 
 class Console;
 class Sprite;
+class Cluster;
+class Vga;
+class System;
+class Keyboard;
+class Mouse;
+class HorizLine;
+class InfoLine;
+class SceneLight;
+class Snail;
+class EventManager;
+class ResourceManager;
+class Walk;
+class Text;
+class Talk;
 
 #define kSavegameVersion 2
 #define kSavegameStrSize 11
@@ -59,7 +73,8 @@ class Sprite;
 #define kPathMax    128
 #define kCryptSeed  0xA5
 #define kMaxFile    128
-
+#define kMapXCnt       40
+#define kMapZCnt       20
 
 // our engine debug channels
 enum {
@@ -111,8 +126,8 @@ private:
 	uint32 _lastFrame, _lastTick;
 	void tick();
 	void syncHeader(Common::Serializer &s);
-	static void writeSavegameHeader(Common::OutSaveFile *out, SavegameHeader &header);
-	void syncGame(Common::SeekableReadStream *readStream, Common::WriteStream *writeStream, bool tiny = false);
+	void writeSavegameHeader(Common::OutSaveFile *out, SavegameHeader &header);
+	void syncGame(Common::SeekableReadStream *readStream, Common::WriteStream *writeStream, bool tiny);
 	bool savegameExists(int slotNumber);
 	Common::String generateSaveName(int slot);
 public:
@@ -145,6 +160,8 @@ public:
 	int    _soundOk;
 	int    _gameCase2Cpt;
 	int    _offUseCount;
+	Dac   *_bitmapPalette;
+	uint8 _clusterMap[kMapZCnt][kMapXCnt];
 
 	Sprite *_sprTv;
 	Sprite *_sprK1;
@@ -154,9 +171,32 @@ public:
 	Common::Point _heroXY[kSceneMax];
 	Bar _barriers[kSceneMax + 1];
 	Font *_font;
+	Vga *_vga;
+	System *_sys;
+	Sprite *_pocLight;
+	Keyboard *_keyboard;
+	Mouse *_mouse;
+	Sprite *_sprite;
+	Sprite *_miniScene;
+	Sprite *_shadow;
+	HorizLine *_horzLine;
+	InfoLine *_infoLine;
+	InfoLine *_debugLine;
+	SceneLight *_sceneLight;
+	Snail *_snail;
+	Snail *_snail_;
+	EventManager *_eventManager;
+	Fx *_fx;
+	Sound *_sound;
+	ResourceManager *_resman;
+	Sprite *_pocket[kPocketNX];
+	Walk *_hero;
+	Text *_text;
+	Talk *_talk;
+
 
 	Common::RandomSource _randomSource;
-	MusicPlayer _midiPlayer;
+	MusicPlayer *_midiPlayer;
 	BitmapPtr *_miniShp;
 	BitmapPtr *_miniShpList;
 	int        _startGameSlot;
@@ -230,6 +270,10 @@ public:
 	int  takeEnum(const char **tab, const char *text);
 	int  newRandom(int range);
 	void sndSetVolume();
+	Sprite *locate(int ref);
+	Sprite *spriteAt(int x, int y);
+	Cluster XZ(int16 x, int16 y);
+	void killText();
 
 	void snBackPt(Sprite *spr, int stp);
 	void snHBarrier(const int scene, const int barX);

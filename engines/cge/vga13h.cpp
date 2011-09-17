@@ -54,21 +54,6 @@ Seq *getConstantSeq(bool seqFlag) {
 	return seq;
 }
 
-extern "C" void SNDMIDIPlay();
-
-Dac mkDac(uint8 r, uint8 g, uint8 b) {
-	static Dac x;
-	x._r = r;
-	x._g = g;
-	x._b = b;
-	return x;
-}
-
-Sprite *locate(int ref) {
-	Sprite *spr = _vga->_showQ->locate(ref);
-	return (spr) ? spr : _vga->_spareQ->locate(ref);
-}
-
 Sprite::Sprite(CGEEngine *vm, BitmapPtr *shpP)
 	: _x(0), _y(0), _z(0), _nearPtr(0), _takePtr(0),
 	  _next(NULL), _prev(NULL), _seqPtr(kNoSeq), _time(0),
@@ -87,8 +72,8 @@ Sprite::Sprite(CGEEngine *vm, BitmapPtr *shpP)
 }
 
 Sprite::~Sprite() {
-	if (_sprite == this)
-		_sprite = NULL;
+	if (_vm->_sprite == this)
+		_vm->_sprite = NULL;
 
 	contract();
 }
@@ -226,8 +211,8 @@ Sprite *Sprite::expand() {
 	Snail::Com *nearList = NULL;
 	Snail::Com *takeList = NULL;
 	_vm->mergeExt(fname, _file, kSprExt);
-	if (_resman->exist(fname)) { // sprite description file exist
-		EncryptedStream sprf(fname);
+	if (_vm->_resman->exist(fname)) { // sprite description file exist
+		EncryptedStream sprf(_vm, fname);
 		if (sprf.err())
 			error("Bad SPR [%s]", fname);
 		Common::String line;
@@ -254,7 +239,7 @@ Sprite *Sprite::expand() {
 					shplist.push_back(NULL);
 					++_shpCnt;
 				}
-				shplist[shapeCount++] = new Bitmap(strtok(NULL, " \t,;/"));
+				shplist[shapeCount++] = new Bitmap(_vm, strtok(NULL, " \t,;/"));
 				break;
 			case 2:
 				// Seq
@@ -310,7 +295,7 @@ Sprite *Sprite::expand() {
 		}
 	} else {
 		// no sprite description: try to read immediately from .BMP
-		shplist[shapeCount++] = new Bitmap(_file);
+		shplist[shapeCount++] = new Bitmap(_vm, _file);
 	}
 
 	shplist[shapeCount] = NULL;
@@ -462,10 +447,10 @@ void Sprite::show() {
 }
 
 void Sprite::show(uint16 pg) {
-	Graphics::Surface *a = _vga->_page[1];
-	_vga->_page[1] = _vga->_page[pg & 3];
+	Graphics::Surface *a = _vm->_vga->_page[1];
+	_vm->_vga->_page[1] = _vm->_vga->_page[pg & 3];
 	shp()->show(_x, _y);
-	_vga->_page[1] = a;
+	_vm->_vga->_page[1] = a;
 }
 
 void Sprite::hide() {
@@ -479,7 +464,7 @@ BitmapPtr Sprite::ghost() {
 	if (!e->_b1)
 		return NULL;
 
-	BitmapPtr bmp = new Bitmap(0, 0, (uint8 *)NULL);
+	BitmapPtr bmp = new Bitmap(_vm, 0, 0, (uint8 *)NULL);
 	assert(bmp != NULL);
 	bmp->_w = e->_b1->_w;
 	bmp->_h = e->_b1->_h;
@@ -556,19 +541,6 @@ void Sprite::sync(Common::Serializer &s) {
 	s.syncAsUint16LE(unused);	// _next
 }
 
-Sprite *spriteAt(int x, int y) {
-	Sprite *spr = NULL, * tail = _vga->_showQ->last();
-	if (tail) {
-		for (spr = tail->_prev; spr; spr = spr->_prev) {
-			if (! spr->_flags._hide && ! spr->_flags._tran) {
-				if (spr->shp()->solidAt(x - spr->_x, y - spr->_y))
-					break;
-			}
-		}
-	}
-	return spr;
-}
-
 Queue::Queue(bool show) : _head(NULL), _tail(NULL), _show(show) {
 }
 
@@ -581,15 +553,6 @@ void Queue::clear() {
 		Sprite *s = remove(_head);
 		if (s->_flags._kill)
 			delete s;
-	}
-}
-
-void Queue::forAll(void (*fun)(Sprite *)) {
-	Sprite *s = _head;
-	while (s) {
-		Sprite *n = s->_next;
-		fun(s);
-		s = n;
 	}
 }
 
@@ -740,6 +703,47 @@ void Vga::getColors(Dac *tab) {
 	palToDac(palData, tab);
 }
 
+uint8 Vga::closest(Dac *pal, const uint8 colR, const uint8 colG, const uint8 colB) {
+#define f(col, lum) ((((uint16)(col)) << 8) / lum)
+	uint16 i, dif = 0xFFFF, found = 0;
+	uint16 L = colR + colG + colB;
+	if (!L)
+		L++;
+	uint16 R = f(colR, L), G = f(colG, L), B = f(colB, L);
+	for (i = 0; i < 256; i++) {
+		uint16 l = pal[i]._r + pal[i]._g + pal[i]._b;
+		if (!l)
+			l++;
+		int  r = f(pal[i]._r, l), g = f(pal[i]._g, l), b = f(pal[i]._b, l);
+		uint16 D = ((r > R) ? (r - R) : (R - r)) +
+		           ((g > G) ? (g - G) : (G - g)) +
+		           ((b > B) ? (b - B) : (B - b)) +
+		           ((l > L) ? (l - L) : (L - l)) * 10 ;
+
+		if (D < dif) {
+			found = i;
+			dif = D;
+			if (D == 0)
+				break;    // exact!
+		}
+	}
+	return found;
+#undef f
+}
+
+uint8 *Vga::glass(Dac *pal, const uint8 colR, const uint8 colG, const uint8 colB) {
+	uint8 *x = (uint8 *)malloc(256);
+	if (x) {
+		uint16 i;
+		for (i = 0; i < 256; i++) {
+			x[i] = closest(pal, ((uint16)(pal[i]._r) * colR) / 255,
+			                    ((uint16)(pal[i]._g) * colG) / 255,
+			                    ((uint16)(pal[i]._b) * colB) / 255);
+		}
+	}
+	return x;
+}
+
 void Vga::palToDac(const byte *palData, Dac *tab) {
 	const byte *colP = palData;
 	for (int idx = 0; idx < kPalCount; idx++, colP += 3) {
@@ -845,14 +849,14 @@ void Bitmap::xShow(int16 x, int16 y) {
 	debugC(4, kCGEDebugBitmap, "Bitmap::xShow(%d, %d)", x, y);
 
 	const byte *srcP = (const byte *)_v;
-	byte *destEndP = (byte *)_vga->_page[1]->pixels + (kScrWidth * kScrHeight);
+	byte *destEndP = (byte *)_vm->_vga->_page[1]->pixels + (kScrWidth * kScrHeight);
 	byte *lookupTable = _m;
 
 	// Loop through processing data for each plane. The game originally ran in plane mapped mode, where a
 	// given plane holds each fourth pixel sequentially. So to handle an entire picture, each plane's data
 	// must be decompressed and inserted into the surface
 	for (int planeCtr = 0; planeCtr < 4; planeCtr++) {
-		byte *destP = (byte *)_vga->_page[1]->getBasePtr(x + planeCtr, y);
+		byte *destP = (byte *)_vm->_vga->_page[1]->getBasePtr(x + planeCtr, y);
 
 		for (;;) {
 			uint16 v = READ_LE_UINT16(srcP);
@@ -898,13 +902,13 @@ void Bitmap::show(int16 x, int16 y) {
 	debugC(5, kCGEDebugBitmap, "Bitmap::show(%d, %d)", x, y);
 
 	const byte *srcP = (const byte *)_v;
-	byte *destEndP = (byte *)_vga->_page[1]->pixels + (kScrWidth * kScrHeight);
+	byte *destEndP = (byte *)_vm->_vga->_page[1]->pixels + (kScrWidth * kScrHeight);
 
 	// Loop through processing data for each plane. The game originally ran in plane mapped mode, where a
 	// given plane holds each fourth pixel sequentially. So to handle an entire picture, each plane's data
 	// must be decompressed and inserted into the surface
 	for (int planeCtr = 0; planeCtr < 4; planeCtr++) {
-		byte *destP = (byte *)_vga->_page[1]->getBasePtr(x + planeCtr, y);
+		byte *destP = (byte *)_vm->_vga->_page[1]->getBasePtr(x + planeCtr, y);
 
 		for (;;) {
 			uint16 v = READ_LE_UINT16(srcP);
@@ -951,8 +955,8 @@ void Bitmap::hide(int16 x, int16 y) {
 	debugC(5, kCGEDebugBitmap, "Bitmap::hide(%d, %d)", x, y);
 
 	for (int yp = y; yp < y + _h; yp++) {
-		const byte *srcP = (const byte *)_vga->_page[2]->getBasePtr(x, yp);
-		byte *destP = (byte *)_vga->_page[1]->getBasePtr(x, yp);
+		const byte *srcP = (const byte *)_vm->_vga->_page[2]->getBasePtr(x, yp);
+		byte *destP = (byte *)_vm->_vga->_page[1]->getBasePtr(x, yp);
 
 		Common::copy(srcP, srcP + _w, destP);
 	}
@@ -960,41 +964,41 @@ void Bitmap::hide(int16 x, int16 y) {
 
 /*--------------------------------------------------------------------------*/
 
-HorizLine::HorizLine(CGEEngine *vm): Sprite(vm, NULL) {
+HorizLine::HorizLine(CGEEngine *vm) : Sprite(vm, NULL), _vm(vm) {
 	// Set the sprite list
 	BitmapPtr *HL = new BitmapPtr[2];
-	HL[0] = new Bitmap("HLINE");
+	HL[0] = new Bitmap(_vm, "HLINE");
 	HL[1] = NULL;
 
 	setShapeList(HL);
 }
 
-SceneLight::SceneLight(CGEEngine *vm): Sprite(vm, NULL) {
+SceneLight::SceneLight(CGEEngine *vm) : Sprite(vm, NULL), _vm(vm) {
 	// Set the sprite list
 	BitmapPtr *PR = new BitmapPtr[2];
-	PR[0] = new Bitmap("PRESS");
+	PR[0] = new Bitmap(_vm, "PRESS");
 	PR[1] = NULL;
 
 	setShapeList(PR);
 }
 
-Spike::Spike(CGEEngine *vm): Sprite(vm, NULL) {
+Spike::Spike(CGEEngine *vm): Sprite(vm, NULL), _vm(vm) {
 	// Set the sprite list
 	BitmapPtr *SP = new BitmapPtr[3];
-	SP[0] = new Bitmap("SPK_L");
-	SP[1] = new Bitmap("SPK_R");
+	SP[0] = new Bitmap(_vm, "SPK_L");
+	SP[1] = new Bitmap(_vm, "SPK_R");
 	SP[2] = NULL;
 
 	setShapeList(SP);
 }
 
-PocLight::PocLight(CGEEngine *vm): Sprite(vm, NULL) {
+PocLight::PocLight(CGEEngine *vm): Sprite(vm, NULL), _vm(vm) {
 	// Set the sprite list
 	BitmapPtr *LI = new BitmapPtr[5];
-	LI[0] = new Bitmap("LITE0");
-	LI[1] = new Bitmap("LITE1");
-	LI[2] = new Bitmap("LITE2");
-	LI[3] = new Bitmap("LITE3");
+	LI[0] = new Bitmap(_vm, "LITE0");
+	LI[1] = new Bitmap(_vm, "LITE1");
+	LI[2] = new Bitmap(_vm, "LITE2");
+	LI[3] = new Bitmap(_vm, "LITE3");
 	LI[4] = NULL;
 
 	setShapeList(LI);

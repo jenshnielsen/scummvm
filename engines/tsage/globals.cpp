@@ -191,6 +191,9 @@ void BlueForceGlobals::synchronize(Serializer &s) {
 
 	s.syncAsSint16LE(_dayNumber);
 	s.syncAsSint16LE(_v4CEA4);
+	s.syncAsSint16LE(_v4CEB4);
+	s.syncAsSint16LE(_v4CEB6);
+	s.syncAsSint16LE(_deziTopic);
 	s.syncAsSint16LE(_deathReason);
 	s.syncAsSint16LE(_driveFromScene);
 	s.syncAsSint16LE(_driveToScene);
@@ -205,7 +208,6 @@ void BlueForceGlobals::synchronize(Serializer &s) {
 	s.syncAsSint16LE(_mapLocationId);
 	s.syncAsSint16LE(_clip1Bullets);
 	s.syncAsSint16LE(_clip2Bullets);
-	s.syncAsSint16LE(_v4CEB4);
 }
 
 void BlueForceGlobals::reset() {
@@ -227,6 +229,9 @@ void BlueForceGlobals::reset() {
 	_interfaceY = BF_INTERFACE_Y;
 	_dayNumber = 0;
 	_v4CEA4 = 0;
+	_v4CEB4 = 0;
+	_v4CEB6 = 0;
+	_deziTopic = 0;
 	_deathReason = 0;
 	_v501FC = 0;
 	_v50696 = 0;
@@ -236,7 +241,6 @@ void BlueForceGlobals::reset() {
 	_v51C44 = 1;
 	_clip1Bullets = 8;
 	_clip2Bullets = 8;
-	_v4CEB4 = 0;
 }
 
 bool BlueForceGlobals::getHasBullets() {

@@ -50,7 +50,7 @@ Font::~Font() {
 }
 
 void Font::load() {
-	EncryptedStream f = _path;
+	EncryptedStream f(_vm, _path);
 	assert(!f.err());
 
 	f.read(_widthArr, kWidSize);
@@ -179,7 +179,7 @@ Bitmap *Talk::box(uint16 w, uint16 h) {
 			q -= w;
 		}
 	}
-	return new Bitmap(w, h, b);
+	return new Bitmap(_vm, w, h, b);
 }
 
 void Talk::putLine(int line, const char *text) {
@@ -237,7 +237,7 @@ InfoLine::InfoLine(CGEEngine *vm, uint16 w) : Talk(vm), _oldText(NULL), _vm(vm) 
 		_ts[1] = NULL;
 	}
 
-	_ts[0] = new Bitmap(w, kFontHigh, kTextColBG);
+	_ts[0] = new Bitmap(_vm, w, kFontHigh, kTextColBG);
 	setShapeList(_ts);
 }
 
