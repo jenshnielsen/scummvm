@@ -106,9 +106,13 @@ Scene *BlueForceGame::createScene(int sceneNumber) {
 		// Marina, Outside Boat
 		return new Scene350();
 	case 355:
-	case 360:
-	case 370:
 		error("Scene group 3 not implemented");
+	case 360:
+		// Future Wave Interior
+		return new Scene360();
+	case 370:
+		// Future Wave Bedroom
+		return new Scene370();
 	case 380:
 		// Outside City Hall & Jail
 		return new Scene380();
@@ -414,7 +418,7 @@ bool NamedObject::startAction(CursorType action, Event &event) {
 	}
 
 	if (!handled)
-		((SceneExt *)BF_GLOBALS._sceneManager._scene)->display(action);
+		handled = ((SceneExt *)BF_GLOBALS._sceneManager._scene)->display(action);
 	return handled;
 }
 
@@ -985,7 +989,7 @@ void BlueForceInvObjectList::reset() {
 	setObjectScene(INV_FBI_TELETYPE, 320);
 	setObjectScene(INV_DA_NOTE, 320);
 	setObjectScene(INV_PRINT_OUT, 570);
-	setObjectScene(INV_WHAREHOUSE_KEYS, 360);
+	setObjectScene(INV_WAREHOUSE_KEYS, 360);
 	setObjectScene(INV_CENTER_PUNCH, 0);
 	setObjectScene(INV_TRANQ_GUN, 830);
 	setObjectScene(INV_HOOK, 350);

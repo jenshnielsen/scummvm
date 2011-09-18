@@ -2987,22 +2987,28 @@ void Player::enableControl() {
 	_canWalk = true;
 	_uiEnabled = true;
 	_enabled = true;
-	_globals->_events.setCursor(CURSOR_WALK);
 
-	switch (_globals->_events.getCursor()) {
-	case CURSOR_WALK:
-	case CURSOR_LOOK:
-	case CURSOR_USE:
-	case CURSOR_TALK:
-		_globals->_events.setCursor(_globals->_events.getCursor());
-		break;
-	default:
+	if (_vm->getGameID() == GType_Ringworld) {
 		_globals->_events.setCursor(CURSOR_WALK);
-		break;
-	}
 
-	if ((_vm->getGameID() == GType_BlueForce) && BF_GLOBALS._uiElements._active)
-		BF_GLOBALS._uiElements.show();
+		switch (_globals->_events.getCursor()) {
+		case CURSOR_WALK:
+		case CURSOR_LOOK:
+		case CURSOR_USE:
+		case CURSOR_TALK:
+			_globals->_events.setCursor(_globals->_events.getCursor());
+			break;
+		default:
+			_globals->_events.setCursor(CURSOR_WALK);
+			break;
+		}
+	} else {
+		CursorType cursor = _globals->_events.getCursor();
+		_globals->_events.setCursor(cursor);
+
+		if (BF_GLOBALS._uiElements._active)
+			BF_GLOBALS._uiElements.show();
+	}
 }
 
 void Player::process(Event &event) {
@@ -3843,19 +3849,23 @@ void SceneHandler::process(Event &event) {
 						// Item wasn't handled, keep scanning
 						continue;
 
-					event.handled = _globals->_events.getCursor() != CURSOR_WALK;
+					if ((_vm->getGameID() == GType_Ringworld) || (_globals->_events.getCursor() == CURSOR_9999)) {
+						event.handled = _globals->_events.getCursor() != CURSOR_WALK;
 
-					if (_globals->_player._uiEnabled && _globals->_player._canWalk &&
-							(_globals->_events.getCursor() != CURSOR_LOOK)) {
-						_globals->_events.setCursor(CURSOR_WALK);
-					} else if (_globals->_player._canWalk && (_globals->_events.getCursor() != CURSOR_LOOK)) {
-						_globals->_events.setCursor(CURSOR_WALK);
-					} else if (_globals->_player._uiEnabled && (_globals->_events.getCursor() != CURSOR_LOOK)) {
-						_globals->_events.setCursor(CURSOR_USE);
-					}
+						if (_globals->_player._uiEnabled && _globals->_player._canWalk &&
+								(_globals->_events.getCursor() != CURSOR_LOOK)) {
+							_globals->_events.setCursor(CURSOR_WALK);
+						} else if (_globals->_player._canWalk && (_globals->_events.getCursor() != CURSOR_LOOK)) {
+							_globals->_events.setCursor(CURSOR_WALK);
+						} else if (_globals->_player._uiEnabled && (_globals->_events.getCursor() != CURSOR_LOOK)) {
+							_globals->_events.setCursor(CURSOR_USE);
+						}
 
-					if (_vm->getGameID() == GType_BlueForce)
+						if (_vm->getGameID() == GType_BlueForce)
+							event.handled = true;
+					} else if (_vm->getGameID() != GType_Ringworld) {
 						event.handled = true;
+					}
 					break;
 				}
 			}

@@ -2819,6 +2819,1048 @@ void Scene350::checkGun() {
 }
 
 /*--------------------------------------------------------------------------
+ * Scene 360 - Future Wave Interior
+ *
+ *--------------------------------------------------------------------------*/
+
+bool Scene360::Item1::startAction(CursorType action, Event &event) {
+	Scene360 *scene = (Scene360 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 9);
+		return true;
+	case CURSOR_TALK:
+		scene->_sceneMode = 3607;
+		BF_GLOBALS._player.disableControl();
+		scene->_stripManager.start(3550, this);
+		return true;
+	case INV_COLT45:
+		SceneItem::display2(1, 4);
+		return true;
+	default:
+		return SceneHotspot::startAction(action, event);
+	}
+}
+
+bool Scene360::Item2::startAction(CursorType action, Event &event) {
+	Scene360 *scene = (Scene360 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 10);
+		return true;
+	case CURSOR_USE:
+		if (BF_GLOBALS._dayNumber != 4)
+			SceneItem::display2(360, 5);
+		else
+			scene->setAction(&scene->_action1);
+		return true;
+	default:
+		return SceneHotspot::startAction(action, event);
+	}
+}
+
+bool Scene360::Item3::startAction(CursorType action, Event &event) {
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 11);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(360, 12);
+		return true;
+	default:
+		return SceneHotspot::startAction(action, event);
+	}
+}
+
+bool Scene360::Barometer::startAction(CursorType action, Event &event) {
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 15);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(360, 16);
+		return true;
+	default:
+		return SceneHotspot::startAction(action, event);
+	}
+}
+
+/*--------------------------------------------------------------------------*/
+
+bool Scene360::SlidingDoor::startAction(CursorType action, Event &event) {
+	Scene360 *scene = (Scene360 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 0);
+		return true;
+	case CURSOR_USE:
+		BF_GLOBALS._player.disableControl();
+		if (BF_GLOBALS.getFlag(greenTaken)) {
+			scene->_sceneMode = 3611;
+			setAction(&scene->_sequenceManager1, scene, 3611, &BF_GLOBALS._player, this, NULL);
+		} else {
+			scene->_sceneMode = 3604;
+			setAction(&scene->_sequenceManager1, scene, 3604, &BF_GLOBALS._player, NULL);
+		}
+		return true;
+	case CURSOR_TALK:
+		scene->_sceneMode = 3607;
+		BF_GLOBALS._player.disableControl();
+		scene->_stripManager.start(3550, scene);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene360::Window::startAction(CursorType action, Event &event) {
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 13);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(360, 14);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene360::Object4::startAction(CursorType action, Event &event) {
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 3);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(360, 2);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene360::BsseballCards::startAction(CursorType action, Event &event) {
+	switch (action) {
+	case CURSOR_LOOK:
+		if (event.mousePos.x >= (_bounds.left + _bounds.width() / 2))
+			SceneItem::display2(360, 4);
+		else
+			SceneItem::display2(360, 22);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(360, 2);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene360::Object6::startAction(CursorType action, Event &event) {
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 6);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(360, 7);
+		return true;
+	case CURSOR_TALK:
+		SceneItem::display2(360, 8);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene360::Object7::startAction(CursorType action, Event &event) {
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(360, 1);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(360, 21);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+/*--------------------------------------------------------------------------*/
+
+void Scene360::Action1::signal() {
+	switch (_actionIndex++) {
+	case 0:
+		BF_GLOBALS._player.disableControl();
+		ADD_PLAYER_MOVER(153, 115);
+		break;
+	case 1:
+		BF_GLOBALS._player.setStrip(7);
+		if (BF_INVENTORY.getObjectScene(INV_WAREHOUSE_KEYS) == 360) {
+			SceneItem::display2(360, 20);
+			BF_INVENTORY.setObjectScene(INV_WAREHOUSE_KEYS, 1);
+			BF_GLOBALS._uiElements.addScore(30);
+		} else {
+			SceneItem::display2(360, 5);
+		}
+
+		BF_GLOBALS._player.enableControl();
+		remove();
+		break;
+	default:
+		break;
+	}
+}
+
+/*--------------------------------------------------------------------------*/
+
+Scene360::Scene360() {
+	_field380 = 0;
+}
+
+void Scene360::synchronize(Serializer &s) {
+	SceneExt::synchronize(s);
+	s.syncAsSint16LE(_field380);
+}
+
+void Scene360::postInit(SceneObjectList *OwnerList) {
+	SceneExt::postInit();
+	loadScene(760);
+	setZoomPercents(108, 90, 135, 100);
+	_sound1.play(125);
+
+	_stripManager.addSpeaker(&_gameTextSpeaker);
+	_stripManager.addSpeaker(&_jakeUniformSpeaker);
+	_stripManager.addSpeaker(&_harrisonSpeaker);
+	_stripManager.addSpeaker(&_greenSpeaker);
+
+	_item2._sceneRegionId = 11;
+	BF_GLOBALS._sceneItems.push_back(&_item2);
+
+	_slidingDoor.postInit();
+	_slidingDoor.setVisage(760);
+	_slidingDoor.setPosition(Common::Point(42, 120));
+	_slidingDoor.setStrip(2);
+	_slidingDoor.fixPriority(85);
+	BF_GLOBALS._sceneItems.push_back(&_slidingDoor);
+
+	_window.postInit();
+	_window.setVisage(760);
+	_window.setPosition(Common::Point(176, 43));
+	_window.fixPriority(10);
+	_window._numFrames = 2;
+	_window.animate(ANIM_MODE_8, 0, NULL);
+	BF_GLOBALS._sceneItems.push_back(&_window);
+
+	_object4.postInit();
+	_object4.setVisage(760);
+	_object4.setStrip(5);
+	_object4.setPosition(Common::Point(157, 75));
+	_object4.fixPriority(50);
+	BF_GLOBALS._sceneItems.push_back(&_object4);
+
+	if (BF_GLOBALS._dayNumber <= 1) {
+		_object7.postInit();
+		_object7.setVisage(760);
+		_object7.setStrip(1);
+		_object7.setPosition(Common::Point(246, 105));
+		_object7.fixPriority(50);
+		BF_GLOBALS._sceneItems.push_back(&_object7);
+
+		_baseballCards.postInit();
+		_baseballCards.setVisage(760);
+		_baseballCards.setStrip(6);
+		_baseballCards.setPosition(Common::Point(159, 115));
+		_baseballCards.fixPriority(50);
+		BF_GLOBALS._sceneItems.push_back(&_baseballCards);
+	}
+
+	BF_GLOBALS._player.postInit();
+	if (BF_GLOBALS.getFlag(onDuty)) {
+		if (BF_GLOBALS.getFlag(gunDrawn)) {
+			BF_GLOBALS._player.setVisage(1351);
+			BF_GLOBALS._player._moveDiff.x = 5;
+		} else {
+			BF_GLOBALS._player.setVisage(361);
+			BF_GLOBALS._player._moveDiff.x = 6;
+		}
+	} else {
+		BF_GLOBALS._player.setVisage(368);
+		BF_GLOBALS._player._moveDiff.x = 6;
+	}
+
+	BF_GLOBALS._player.changeZoom(-1);
+	BF_GLOBALS._player.setStrip(3);
+	BF_GLOBALS._player.setPosition(Common::Point(340, 160));
+	BF_GLOBALS._player.setObjectWrapper(new SceneObjectWrapper());
+	BF_GLOBALS._player.animate(ANIM_MODE_1, NULL);
+	BF_GLOBALS._player._moveDiff.y = 4;
+	BF_GLOBALS._player.enableControl();
+
+	if (BF_GLOBALS._sceneManager._previousScene == 370) {
+		BF_GLOBALS._player.setPosition(Common::Point(62, 122));
+	} else {
+		BF_GLOBALS._player.setPosition(Common::Point(253, 135));
+		BF_GLOBALS._player.setStrip(2);
+
+		if (BF_GLOBALS.getFlag(fBackupIn350)) {
+			_object6.postInit();
+			_object6.setVisage(BF_GLOBALS.getFlag(gunDrawn) ? 363 : 1363);
+			_object6.animate(ANIM_MODE_1, NULL);
+			_object6.setObjectWrapper(new SceneObjectWrapper());
+			_object6.setPosition(Common::Point(235, 150));
+			_object6.setStrip(2);
+			BF_GLOBALS._sceneItems.push_back(&_object6);
+		}
+
+		_sceneMode = 3607;
+		if (BF_GLOBALS.getFlag(greenTaken)) {
+			_slidingDoor.setPosition(Common::Point(42, 120));
+		} else {
+			BF_GLOBALS._player.disableControl();
+
+			_object2.postInit();
+			_object2.setPosition(Common::Point(-40, -40));
+			
+			_slidingDoor.setPosition(Common::Point(6, 130));
+			_slidingDoor.setAction(&_sequenceManager1, this, 3606, &_slidingDoor, &_object7, NULL);
+		}
+	}
+
+	_barometer._sceneRegionId = 9;
+	BF_GLOBALS._sceneItems.push_back(&_barometer);
+	_item3._sceneRegionId = 10;
+	BF_GLOBALS._sceneItems.push_back(&_item3);
+	_item1.setBounds(Rect(0, 0, SCREEN_WIDTH, BF_INTERFACE_Y));
+	BF_GLOBALS._sceneItems.push_back(&_item1);
+}
+
+void Scene360::signal() {
+	switch (_sceneMode) {
+	case 3600:
+	case 3611:
+		BF_GLOBALS._sceneManager.changeScene(370);
+		break;
+	case 3602:
+		BF_GLOBALS.setFlag(gunDrawn);
+		BF_GLOBALS._deathReason = BF_GLOBALS.getFlag(fBackupIn350) ? 2 : 1;
+		BF_GLOBALS._player.setPosition(Common::Point(BF_GLOBALS._player._position.x - 20,
+			BF_GLOBALS._player._position.y));
+		_sceneMode = 3610;
+		setAction(&_sequenceManager1, this, 3610, &_slidingDoor, &_object2, &BF_GLOBALS._player, NULL);
+		break;
+	case 3603:
+		_sceneMode = 3605;
+		setAction(&_sequenceManager1, this, 3605, &BF_GLOBALS._player, &_slidingDoor, NULL);
+		break;
+	case 3604:
+		_sceneMode = BF_GLOBALS.getFlag(fBackupIn350) ? 3603 : 3605;
+		setAction(&_sequenceManager1, this, _sceneMode, &_object6, NULL);
+		break;
+	case 3605:
+		if (BF_GLOBALS.getFlag(fBackupIn350)) {
+			_sceneMode = 3600;
+			setAction(&_sequenceManager1, this, 3600, NULL);
+		} else {
+			BF_GLOBALS._deathReason = BF_GLOBALS.getFlag(fBackupIn350) ? 2 : 1;
+			_sceneMode = 3610;
+			setAction(&_sequenceManager1, this, 3601, &BF_GLOBALS._player, NULL);
+		}
+		break;
+	case 3607:
+	case 3609:
+		_object6.setVisage(1363);
+		BF_GLOBALS._player.enableControl();
+		break;
+	case 3608:
+		BF_GLOBALS._sceneManager.changeScene(355);
+		break;
+	case 3610:
+		BF_GLOBALS._sceneManager.changeScene(666);
+		break;
+	case 9998:
+		BF_GLOBALS._player.setVisage(1351);
+		BF_GLOBALS._player._moveDiff.x = 5;
+		BF_GLOBALS._player.setFrame(1);
+		BF_GLOBALS._player.animate(ANIM_MODE_1, NULL);
+		BF_GLOBALS._player.enableControl();
+		break;
+	case 9999:
+		BF_GLOBALS._player.setVisage(361);
+		BF_GLOBALS._player._moveDiff.x = 6;
+		BF_GLOBALS._player.animate(ANIM_MODE_1, NULL);
+		BF_GLOBALS._player.enableControl();
+		break;
+	default:
+		break;
+	}
+}
+
+void Scene360::process(Event &event) {
+	SceneExt::process(event);
+
+	if ((event.eventType == EVENT_BUTTON_DOWN) && (BF_GLOBALS._events.getCursor() == INV_COLT45) &&
+			BF_GLOBALS._player.contains(event.mousePos) && !BF_GLOBALS.getFlag(greenTaken)) {
+		if (BF_GLOBALS.getFlag(gunDrawn)) {
+			if (BF_GLOBALS._player._position.x <= 160)
+				SceneItem::display2(360, 18);
+			else {
+				if (BF_GLOBALS.getFlag(fBackupIn350)) 
+					SceneItem::display2(360, 19);
+				
+				BF_GLOBALS.clearFlag(gunDrawn);
+				_sceneMode = 9999;
+				BF_GLOBALS._player.setVisage(1361);
+				BF_GLOBALS._player.addMover(NULL);
+				BF_GLOBALS._player.setFrame(BF_GLOBALS._player.getFrameCount());
+				BF_GLOBALS._player.animate(ANIM_MODE_6, this);
+				
+				_object6.setVisage(1363);
+			}
+
+		}
+	}
+}
+
+void Scene360::dispatch() {
+	SceneExt::dispatch();
+
+	if (!_action) {
+		if (BF_GLOBALS._player.getRegionIndex() == 8) {
+			// Leaving the boat
+			BF_GLOBALS._player.disableControl();
+			if (BF_GLOBALS.getFlag(fBackupIn350)) {
+				BF_GLOBALS._player.addMover(NULL);
+				_sceneMode = 3609;
+				setAction(&_sequenceManager1, this, 3609, &BF_GLOBALS._player, NULL);
+			} else {
+				BF_GLOBALS._sceneManager.changeScene(355);
+			}
+		}
+
+		if ((BF_GLOBALS._player._position.x <= 168) && !BF_GLOBALS.getFlag(greenTaken) && 
+				!BF_GLOBALS.getFlag(gunDrawn)) {
+			// Moving to doorway without drawn gun before Green is captured
+			BF_GLOBALS._player.disableControl();
+			BF_GLOBALS._player.addMover(NULL);
+			_sceneMode = 3602;
+			setAction(&_sequenceManager1, this, 3602, &_slidingDoor, &_object2, &BF_GLOBALS._player, NULL);
+		}
+	}
+}
+
+/*--------------------------------------------------------------------------
+ * Scene 370 - Future Wave Bedroom
+ *
+ *--------------------------------------------------------------------------*/
+
+bool Scene370::GreensGun::startAction(CursorType action, Event &event) {
+	Scene370 *scene = (Scene370 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(370, 4);
+		return true;
+	case CURSOR_USE:
+		if ((BF_INVENTORY.getObjectScene(INV_HANDCUFFS) != 1) || BF_GLOBALS.getFlag(greenTaken)) {
+			BF_GLOBALS._player.disableControl();
+			BF_GLOBALS._walkRegions.proc2(3);
+			scene->_sceneMode = 3711;
+			scene->setAction(&scene->_sequenceManager, scene, 3711, &BF_GLOBALS._player, this, NULL);
+		} else {
+			SceneItem::display2(370, 5);
+		}
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene370::Green::startAction(CursorType action, Event &event) {
+	Scene370 *scene = (Scene370 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(370, (_v2 < 3) ? 10 : 0);
+		return true;
+	case CURSOR_USE:
+		if (_v2 != 3) 
+			SceneItem::display2(370, 1);
+		else if (BF_INVENTORY.getObjectScene(INV_HANDCUFFS) == 1)
+			SceneItem::display2(370, 26);
+		else if (BF_INVENTORY.getObjectScene(INV_GREENS_KNIFE) == 1) {
+			scene->_sceneMode = 2;
+			scene->_stripManager.start(3717, scene);
+		} else {
+			BF_GLOBALS._player.disableControl();
+			BF_GLOBALS._walkRegions.proc2(3);
+			scene->_sceneMode = 3715;
+			scene->setAction(&scene->_sequenceManager, scene, 3715, &BF_GLOBALS._player, this, NULL);
+		}
+		return true;
+	case CURSOR_TALK:
+		BF_GLOBALS._player.disableControl();
+		switch (_v2) {
+		case 0:
+			++_v2;
+			scene->_sceneMode = 3706;
+			scene->setAction(&scene->_sequenceManager, scene, 3706, NULL);
+			break;
+		case 1:
+			++_v2;
+			scene->_sceneMode = 3707;
+
+			scene->_object5.postInit();
+			scene->_object5.setVisage(362);
+			scene->_object5.setStrip(3);
+			scene->_object5.setPosition(scene->_harrison._position);
+			scene->_object5.hide();
+
+			scene->setAction(&scene->_sequenceManager, scene, 3707, &scene->_harrison, &scene->_object5, NULL);
+			break;
+		case 2:
+			++_v2;
+			scene->_sceneMode = 3708;
+			scene->setAction(&scene->_sequenceManager, scene, 3708, this, &scene->_laura, &scene->_harrison, 
+				&scene->_object5, &scene->_greensGun, NULL);
+			break;
+		case 3:
+			scene->_sceneMode = BF_INVENTORY.getObjectScene(INV_HANDCUFFS) == 1 ? 3713 : 2;
+			scene->_stripManager.start(3717, scene);
+			break;
+		default:
+			break;
+		}
+		return true;
+	case INV_COLT45:
+		if ((BF_INVENTORY.getObjectScene(INV_GREENS_GUN) == 370) || (BF_INVENTORY.getObjectScene(INV_GREENS_GUN) == 1))
+			SceneItem::display2(370, 28);
+		else if (!BF_GLOBALS.getHasBullets())
+			SceneItem::display2(1, 1);
+		else {
+			BF_GLOBALS._player.disableControl();
+			BF_GLOBALS._deathReason = 9;
+			scene->_sceneMode = 3702;
+			scene->setAction(&scene->_sequenceManager, scene, 3702, &BF_GLOBALS._player, this, &scene->_harrison, NULL);
+		}
+		return true;
+	case INV_HANDCUFFS:
+		if (_v2 != 3)
+			SceneItem::display2(370, 2);
+		else {
+			BF_GLOBALS._uiElements.addScore(50);
+			BF_GLOBALS._player.disableControl();
+			scene->_sceneMode = 3704;
+			scene->setAction(&scene->_sequenceManager, scene, 3704, &BF_GLOBALS._player, this, &scene->_harrison, NULL);
+		}
+		return true;
+	case INV_MIRANDA_CARD:
+		if (BF_INVENTORY.getObjectScene(INV_HANDCUFFS) == 1)
+			SceneItem::display2(370, 5);
+		else if (BF_GLOBALS.getFlag(readGreenRights))
+			SceneItem::display2(390, 15);
+		else {
+			BF_GLOBALS.setFlag(readGreenRights);
+			BF_GLOBALS._player.disableControl();
+			BF_GLOBALS._player.updateAngle(this->_position);
+			scene->_sceneMode = 3717;
+			scene->setAction(&scene->_sequenceManager, scene, 3717, &BF_GLOBALS._player, NULL);
+		}
+		return true;
+	default:
+		break;
+	}
+
+	return NamedObject2::startAction(action, event);
+}
+
+bool Scene370::Harrison::startAction(CursorType action, Event &event) {
+	Scene370 *scene = (Scene370 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(370, 8);
+		return true;
+	case CURSOR_TALK:
+		if (scene->_green._v2 != 3) {
+			scene->_sceneMode = 3;
+			scene->_stripManager.start(3714, scene);
+		} else if ((BF_INVENTORY.getObjectScene(INV_GREENS_KNIFE) == 1) ||
+				((BF_INVENTORY.getObjectScene(INV_GREENS_GUN) == 1) && BF_GLOBALS._sceneObjects->contains(&scene->_laura))) {
+			BF_GLOBALS._player.disableControl();
+			scene->_sceneMode = 3716;
+			scene->setAction(&scene->_sequenceManager, scene, 3716, &BF_GLOBALS._player, &scene->_green, this, NULL);
+		} else {
+			BF_GLOBALS._player.updateAngle(this->_position);
+			scene->_stripManager.start(3715, scene);
+		}
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene370::Laura::startAction(CursorType action, Event &event) {
+	Scene370 *scene = (Scene370 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(370, 11);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(370, BF_GLOBALS._sceneObjects->contains(&scene->_green) ? 12 : 13);
+		return true;
+	case CURSOR_TALK:
+		if (BF_INVENTORY.getObjectScene(INV_HANDCUFFS) != 1) {
+			BF_GLOBALS._player.disableControl();
+			scene->_sceneMode = 3705;
+			scene->setAction(&scene->_sequenceManager, scene, 3705, &BF_GLOBALS._player, this, NULL);
+			return true;
+		}
+		// Deliberate fall-through
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+/*--------------------------------------------------------------------------*/
+
+bool Scene370::Item1::startAction(CursorType action, Event &event) {
+	Scene370 *scene = (Scene370 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(370, 15);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(370, 16);
+		return true;
+	case INV_COLT45:
+		if (BF_GLOBALS._sceneObjects->contains(&scene->_green) && (BF_INVENTORY.getObjectScene(INV_GREENS_GUN) != 370)) {
+			scene->_green.setAction(NULL);
+			scene->_sceneMode = 3703;
+			scene->setAction(&scene->_sequenceManager, scene, 3703, &BF_GLOBALS._player, &scene->_green, &scene->_harrison, NULL);
+			return true;
+		}
+		// Deliberate fall-through
+	default:
+		return NamedHotspot::startAction(action, event);
+	}
+}
+
+bool Scene370::Item6::startAction(CursorType action, Event &event) {
+	Scene370 *scene = (Scene370 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_LOOK:
+		SceneItem::display2(370, 14);
+		return true;
+	case CURSOR_USE:
+		SceneItem::display2(370, 29);
+		return true;
+	case INV_COLT45:
+		if (BF_GLOBALS._sceneObjects->contains(&scene->_green) && (BF_INVENTORY.getObjectScene(INV_GREENS_GUN) != 370) &&
+				(BF_INVENTORY.getObjectScene(INV_HANDCUFFS) == 1)) {
+			BF_GLOBALS._player.disableControl();
+			scene->_green.setAction(NULL);
+			scene->_sceneMode = 3703;
+			scene->setAction(&scene->_sequenceManager, scene, 3703, &BF_GLOBALS._player, &scene->_green, &scene->_harrison, NULL);
+			return true;
+		}
+		// Deliberate fall-through
+	default:
+		return SceneHotspot::startAction(action, event);
+	}
+}
+
+
+bool Scene370::Exit::startAction(CursorType action, Event &event) {
+	Scene370 *scene = (Scene370 *)BF_GLOBALS._sceneManager._scene;
+
+	if (BF_GLOBALS._sceneObjects->contains(&scene->_green))
+		return false;
+	else {
+		ADD_PLAYER_MOVER(event.mousePos.x, event.mousePos.y);
+		return true;
+	}
+}
+
+/*--------------------------------------------------------------------------*/
+
+void Scene370::postInit(SceneObjectList *OwnerList) {
+	SceneExt::postInit();
+	loadScene(370);
+
+	_stripManager.addSpeaker(&_gameTextSpeaker);
+	_stripManager.addSpeaker(&_jakeUniformSpeaker);
+	_stripManager.addSpeaker(&_lauraSpeaker);
+	_stripManager.addSpeaker(&_lauraHeldSpeaker);
+	_stripManager.addSpeaker(&_greenSpeaker);
+	_stripManager.addSpeaker(&_harrisonSpeaker);
+
+	BF_GLOBALS._player.postInit();
+	BF_GLOBALS._player.setVisage(1351);
+	BF_GLOBALS._player.animate(ANIM_MODE_1, NULL);
+	BF_GLOBALS._player.setObjectWrapper(new SceneObjectWrapper());
+	BF_GLOBALS._player.setStrip(8);
+	BF_GLOBALS._player.setPosition(Common::Point(310, 153));
+	BF_GLOBALS._player._moveDiff = Common::Point(7, 2);
+	BF_GLOBALS._player.disableControl();
+
+	if (BF_GLOBALS.getFlag(greenTaken)) {
+		// Green has already been arrested
+		BF_GLOBALS._player.setVisage(BF_GLOBALS.getFlag(onDuty) ? 361 : 368);
+		BF_GLOBALS._player._moveDiff.x = 6;
+		BF_GLOBALS._player.enableControl();
+	} else {
+		// Hostage scene setup
+		_green.postInit();
+		_green.setVisage(373);
+		_green.setStrip(2);
+		_green._numFrames = 5;
+		_green.setPosition(Common::Point(164, 137));
+		_green.animate(ANIM_MODE_7, NULL);
+		_green.fixPriority(125);
+		BF_GLOBALS._sceneItems.push_back(&_green);
+
+		_laura.postInit();
+		_laura.setVisage(374);
+		_laura.setStrip(2);
+		_laura.setPosition(_green._position);
+		_laura.hide();
+		_laura.animate(ANIM_MODE_1, NULL);
+
+		_harrison.postInit();
+		_harrison.setVisage(372);
+		_harrison.setPosition(Common::Point(256, 166));
+		BF_GLOBALS._sceneItems.push_back(&_harrison);
+
+		_sceneMode = 3700;
+		setAction(&_sequenceManager, this, 3700, NULL);
+	}
+
+	if ((BF_INVENTORY.getObjectScene(INV_GREENS_GUN) != 320) && (BF_INVENTORY.getObjectScene(INV_GREENS_GUN) != 1)) {
+		_greensGun.postInit();
+		_greensGun.setVisage(362);
+		_greensGun.setStrip(6);
+		_greensGun.setPosition(_green._position);
+		_greensGun.fixPriority(149);
+		_greensGun.hide();
+	}
+
+	if ((BF_INVENTORY.getObjectScene(INV_GREENS_GUN) == 370) && (BF_GLOBALS._dayNumber == 1)) {
+		_greensGun.setPosition(Common::Point(172, 137));
+		_greensGun.show();
+		BF_GLOBALS._sceneItems.push_front(&_greensGun);
+	}
+
+	_item1._sceneRegionId = 8;
+	BF_GLOBALS._sceneItems.push_back(&_item1);
+	_item2.setDetails(9, 370, 17, -1, 18, 1);
+	_item3.setDetails(10, 370, 19, -1, 20, 1);
+	_item4.setDetails(11, 370, 21, -1, 22, 1);
+	_item5.setDetails(12, 370, 23, -1, 24, 1);
+	_exit.setDetails(Rect(316, 133, 320, 166), 360, -1, -1, -1, 1, NULL);
+	_item6.setBounds(Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+
+	BF_GLOBALS._sceneItems.push_back(&_item6);
+	BF_GLOBALS._sceneItems.remove(&BF_GLOBALS._player);
+	BF_GLOBALS._sceneItems.push_back(&BF_GLOBALS._player);
+}
+
+void Scene370::signal() {
+	switch (_sceneMode) {
+	case 1:
+		BF_GLOBALS._bookmark = bArrestedGreen;
+		BF_GLOBALS._sceneManager.changeScene(350);
+		break;
+	case 2:
+	case 3717:
+		BF_GLOBALS._player.enableControl();
+		break;
+	case 3:
+		break;
+	case 3707:
+		_object5.setDetails(370, 6, -1, 7, 1, NULL);
+		BF_GLOBALS._sceneItems.push_back(&_object5);
+		// Deliberate fall-through
+	case 3700:
+	case 3706:
+		_green.setAction(&_sequenceManager, this, 3701, NULL);
+		BF_GLOBALS._player.enableControl();
+		BF_GLOBALS._player._canWalk = false;
+		break;
+	case 3701:
+		BF_GLOBALS._player.disableControl();
+		setAction(&_sequenceManager, this, 3710, NULL);
+		break;
+	case 3702:
+		// Player tried to shoot Green
+		BF_GLOBALS._deathReason = 2;
+		BF_GLOBALS._sceneManager.changeScene(666);
+		break;
+	case 3703:
+		// Player dropped his gun
+		BF_GLOBALS._deathReason = 9;
+		BF_GLOBALS._sceneManager.changeScene(666);
+		break;
+	case 3704:
+		BF_GLOBALS.clearFlag(gunDrawn);
+		BF_INVENTORY.setObjectScene(INV_HANDCUFFS, 390);
+		BF_GLOBALS._player.setVisage(361);
+		BF_GLOBALS._player.animate(ANIM_MODE_1, NULL);
+		BF_GLOBALS._player.setObjectWrapper(new SceneObjectWrapper());
+		BF_GLOBALS._player.setStrip(3);
+
+		BF_GLOBALS._sceneItems.push_front(&_laura);
+		BF_GLOBALS._walkRegions.proc1(3);
+		_harrison.setAction(NULL);
+		BF_GLOBALS._player.enableControl();
+
+		BF_GLOBALS.set2Flags(f1015Marina);
+		BF_GLOBALS.set2Flags(f1027Marina);
+		BF_GLOBALS.set2Flags(f1098Marina);
+		break;
+	case 3705:
+		_laura.remove();
+		BF_GLOBALS._walkRegions.proc2(6);
+		BF_GLOBALS._walkRegions.proc2(1);
+		BF_GLOBALS._player.enableControl();
+		break;
+	case 3708:
+		_sound1.play(6);
+		BF_GLOBALS._sound1.changeSound(35);
+		BF_INVENTORY.setObjectScene(INV_GREENS_GUN, 370);
+		BF_GLOBALS._uiElements.addScore(50);
+		BF_GLOBALS._sceneItems.push_front(&_greensGun);
+
+		BF_GLOBALS._player.enableControl();
+		BF_GLOBALS._player._canWalk = false;
+
+		_sceneMode = 0;
+		_object5.remove();
+		_green.setAction(NULL);
+		BF_GLOBALS._walkRegions.proc1(6);
+		BF_GLOBALS._walkRegions.proc1(1);
+		break;
+	case 3709:
+		BF_GLOBALS._player.disableControl();
+		_sceneMode = 3713;
+		setAction(&_sequenceManager, this, 3713, NULL);
+		break;
+	case 3710:
+		BF_GLOBALS._player.enableControl();
+		BF_GLOBALS._player._canWalk = false;
+		_sceneMode = 3701;
+		_green.setAction(&_sequenceManager, this, 3701, NULL);
+		break;
+	case 3711:
+		BF_GLOBALS._walkRegions.proc1(3);
+		BF_INVENTORY.setObjectScene(INV_GREENS_GUN, 1);
+		BF_GLOBALS._uiElements.addScore(30);
+		_greensGun.remove();
+		BF_GLOBALS._player.enableControl();
+		break;
+	case 3712:
+		BF_GLOBALS._uiElements._active = false;
+		BF_GLOBALS._uiElements.hide();
+
+		if (BF_GLOBALS._sceneObjects->contains(&_greensGun))
+			_greensGun.remove();
+		_sceneMode = 1;
+		setAction(&_sequenceManager, this, 3714, NULL);
+		break;
+	case 3713:
+		BF_GLOBALS._player.enableControl();
+		BF_GLOBALS._player._canWalk = false;
+		break;
+	case 3715:
+		BF_GLOBALS._uiElements.addScore(50);
+		BF_INVENTORY.setObjectScene(INV_GREEN_ID, 1);
+		BF_INVENTORY.setObjectScene(INV_GREENS_KNIFE, 1);
+		BF_GLOBALS._walkRegions.proc1(3);
+		BF_GLOBALS._player.enableControl();
+		break;
+	case 3716:
+		BF_GLOBALS.clearFlag(fCalledBackup);
+		BF_GLOBALS.clearFlag(fBackupIn350);
+		BF_GLOBALS.clearFlag(fBackupArrived340);
+		BF_GLOBALS.setFlag(greenTaken);
+		BF_GLOBALS.setFlag(fToldToLeave340);
+
+		BF_GLOBALS._bookmark = bCalledToDomesticViolence;
+		_harrison.remove();
+		_green.remove();
+		BF_GLOBALS._player.enableControl();
+		break;
+	}
+}
+
+void Scene370::process(Event &event) {
+	SceneExt::process(event);
+
+	if (BF_GLOBALS._player._enabled && !_eventHandler && (event.mousePos.y < (BF_INTERFACE_Y - 1))) {
+		// Check if the cursor is on an exit
+		if (_exit.contains(event.mousePos)) {
+			GfxSurface surface = _cursorVisage.getFrame(EXITFRAME_E);
+			BF_GLOBALS._events.setCursor(surface);
+		} else {
+			// In case an exit cursor was being shown, restore the previously selected cursor
+			CursorType cursorId = BF_GLOBALS._events.getCursor();
+			BF_GLOBALS._events.setCursor(cursorId);
+		}
+	}
+}
+
+void Scene370::dispatch() {
+	SceneExt::dispatch();
+
+	if ((BF_GLOBALS._player._position.x >= 316) && !BF_GLOBALS._sceneObjects->contains(&_laura) &&
+				!BF_GLOBALS._sceneObjects->contains(&_green)) {
+		if (BF_GLOBALS._bookmark < bArrestedGreen) {
+			BF_GLOBALS._player.disableControl();
+			_sceneMode = 3712;
+			setAction(&_sequenceManager, this, 3712, &BF_GLOBALS._player, NULL);
+		} else {
+			BF_GLOBALS._sound1.fadeSound(35);
+			BF_GLOBALS._sceneManager.changeScene(360);
+		}
+	}
+}
+
+/*--------------------------------------------------------------------------
+ * Scene 380 - Outside City Hall & Jail
+ *
+ *--------------------------------------------------------------------------*/
+
+bool Scene380::Vechile::startAction(CursorType action, Event &event) {
+	Scene380 *scene = (Scene380 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_USE:
+		BF_GLOBALS._player.disableControl();
+		scene->_sceneMode = 1;
+		scene->setAction(&scene->_sequenceManager, scene, 3802, &BF_GLOBALS._player, NULL);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+bool Scene380::Door::startAction(CursorType action, Event &event) {
+	Scene380 *scene = (Scene380 *)BF_GLOBALS._sceneManager._scene;
+
+	switch (action) {
+	case CURSOR_USE:
+		BF_GLOBALS._player.disableControl();
+		scene->_sceneMode = 2;
+		scene->setAction(&scene->_sequenceManager, scene, 3800, &BF_GLOBALS._player, &scene->_door, NULL);
+		return true;
+	default:
+		return NamedObject::startAction(action, event);
+	}
+}
+
+/*--------------------------------------------------------------------------*/
+
+void Scene380::postInit(SceneObjectList *OwnerList) {
+	SceneExt::postInit();
+	loadScene(380);
+	setZoomPercents(68, 80, 131, 100);
+
+	BF_GLOBALS._sound1.fadeSound(33);
+	BF_GLOBALS._walkRegions.proc1(9);
+
+	_door.postInit();
+	_door.setVisage(380);
+	_door.setStrip(4);
+	_door.setPosition(Common::Point(132, 66));
+	_door.setDetails(380, 12, 13, -1, 1, NULL);
+
+	BF_GLOBALS._player.postInit();
+	BF_GLOBALS._player.setObjectWrapper(new SceneObjectWrapper());
+	BF_GLOBALS._player.animate(ANIM_MODE_1, NULL);
+	BF_GLOBALS._player.changeZoom(-1);
+
+	_vechile.postInit();
+	_vechile.setVisage(380);
+	_vechile.fixPriority(109);
+	
+	if (BF_GLOBALS.getFlag(fWithLyle)) {
+		// Show vechile as car
+		_vechile.setStrip(3);
+		_vechile.setPosition(Common::Point(273, 125));
+		_vechile.setDetails(580, 2, 3, -1, 1, NULL);
+
+		BF_GLOBALS._player.setVisage(129);
+		BF_GLOBALS._walkRegions.proc1(12);
+		BF_GLOBALS._walkRegions.proc1(18);
+		BF_GLOBALS._walkRegions.proc1(19);
+		BF_GLOBALS._walkRegions.proc1(20);
+		BF_GLOBALS._walkRegions.proc1(25);
+		BF_GLOBALS._walkRegions.proc1(26);
+		BF_GLOBALS._walkRegions.proc1(27);
+	} else if (BF_GLOBALS.getFlag(onDuty)) {
+		// Show on duty motorcycle
+		_vechile.setStrip(2);
+		_vechile.setDetails(300, 11, 13, -1, 1, NULL);
+		_vechile.setPosition(Common::Point(252, 115));
+
+		BF_GLOBALS._player.setVisage(1341);
+	} else {
+		// Show off duty motorcycle
+		_vechile.setStrip(1);
+		_vechile.setDetails(580, 0, 1, -1, 1, NULL);
+		_vechile.setPosition(Common::Point(249, 110));
+
+		BF_GLOBALS._player.setVisage(129);
+	}
+
+	BF_GLOBALS._player.updateAngle(_vechile._position);
+	BF_GLOBALS._sceneItems.push_back(&_door);
+
+	switch (BF_GLOBALS._sceneManager._previousScene) {
+	case 50:
+	case 60:
+	case 330:
+	case 370:
+		BF_GLOBALS._player.setPosition(Common::Point(251, 100));
+		BF_GLOBALS._player._strip = 3;
+		BF_GLOBALS._player.enableControl();
+		break;
+	default:
+		BF_GLOBALS._player.disableControl();
+		_sceneMode = 0;
+		setAction(&_sequenceManager, this, 3801, &BF_GLOBALS._player, &_door, NULL);
+		break;
+	}
+
+	_item1.setDetails(7, 380, 0, 1, 2, 1);
+	_item2.setDetails(9, 380, 3, 4, 5, 1);
+	_item3.setDetails(17, 380, 6, 7, 8, 1);
+	_item4.setDetails(20, 380, 9, 10, 11, 1);
+	_item5.setDetails(15, 380, 14, 15, 16, 1);
+	_item6.setDetails(4, 380, 17, 18, 19, 1);
+	_item7.setDetails(19, 380, 20, 4, 21, 1);
+	_item8.setDetails(18, 380, 22, 23, 24, 1);
+	_item9.setDetails(6, 380, 25, 26, 27, 1);
+}
+
+void Scene380::signal() {
+	switch (_sceneMode) {
+	case 1:
+		BF_GLOBALS._sceneManager.changeScene(60);
+		break;
+	case 2:
+		BF_GLOBALS._sceneManager.changeScene(385);
+		break;
+	default:
+		BF_GLOBALS._player.enableControl();
+	}
+}
+
+/*--------------------------------------------------------------------------
  * Scene 385 - City Hall
  *
  *--------------------------------------------------------------------------*/
@@ -3554,137 +4596,6 @@ void Scene390::signal() {
 		BF_GLOBALS._deathReason = 18;
 		BF_GLOBALS._sceneManager.changeScene(666);
 		break;
-	}
-}
-
-/*--------------------------------------------------------------------------
- * Scene 380 - Outside City Hall & Jail
- *
- *--------------------------------------------------------------------------*/
-
-bool Scene380::Vechile::startAction(CursorType action, Event &event) {
-	Scene380 *scene = (Scene380 *)BF_GLOBALS._sceneManager._scene;
-
-	switch (action) {
-	case CURSOR_USE:
-		BF_GLOBALS._player.disableControl();
-		scene->_sceneMode = 1;
-		scene->setAction(&scene->_sequenceManager, scene, 3802, &BF_GLOBALS._player, NULL);
-		return true;
-	default:
-		return NamedObject::startAction(action, event);
-	}
-}
-
-bool Scene380::Door::startAction(CursorType action, Event &event) {
-	Scene380 *scene = (Scene380 *)BF_GLOBALS._sceneManager._scene;
-
-	switch (action) {
-	case CURSOR_USE:
-		BF_GLOBALS._player.disableControl();
-		scene->_sceneMode = 2;
-		scene->setAction(&scene->_sequenceManager, scene, 3800, &BF_GLOBALS._player, &scene->_door, NULL);
-		return true;
-	default:
-		return NamedObject::startAction(action, event);
-	}
-}
-
-/*--------------------------------------------------------------------------*/
-
-void Scene380::postInit(SceneObjectList *OwnerList) {
-	SceneExt::postInit();
-	loadScene(380);
-	setZoomPercents(68, 80, 131, 100);
-
-	BF_GLOBALS._sound1.fadeSound(33);
-	BF_GLOBALS._walkRegions.proc1(9);
-
-	_door.postInit();
-	_door.setVisage(380);
-	_door.setStrip(4);
-	_door.setPosition(Common::Point(132, 66));
-	_door.setDetails(380, 12, 13, -1, 1, NULL);
-
-	BF_GLOBALS._player.postInit();
-	BF_GLOBALS._player.setObjectWrapper(new SceneObjectWrapper());
-	BF_GLOBALS._player.animate(ANIM_MODE_1, NULL);
-	BF_GLOBALS._player.changeZoom(-1);
-
-	_vechile.postInit();
-	_vechile.setVisage(380);
-	_vechile.fixPriority(109);
-	
-	if (BF_GLOBALS.getFlag(fWithLyle)) {
-		// Show vechile as car
-		_vechile.setStrip(3);
-		_vechile.setPosition(Common::Point(273, 125));
-		_vechile.setDetails(580, 2, 3, -1, 1, NULL);
-
-		BF_GLOBALS._player.setVisage(129);
-		BF_GLOBALS._walkRegions.proc1(12);
-		BF_GLOBALS._walkRegions.proc1(18);
-		BF_GLOBALS._walkRegions.proc1(19);
-		BF_GLOBALS._walkRegions.proc1(20);
-		BF_GLOBALS._walkRegions.proc1(25);
-		BF_GLOBALS._walkRegions.proc1(26);
-		BF_GLOBALS._walkRegions.proc1(27);
-	} else if (BF_GLOBALS.getFlag(onDuty)) {
-		// Show on duty motorcycle
-		_vechile.setStrip(2);
-		_vechile.setDetails(300, 11, 13, -1, 1, NULL);
-		_vechile.setPosition(Common::Point(252, 115));
-
-		BF_GLOBALS._player.setVisage(1341);
-	} else {
-		// Show off duty motorcycle
-		_vechile.setStrip(1);
-		_vechile.setDetails(580, 0, 1, -1, 1, NULL);
-		_vechile.setPosition(Common::Point(249, 110));
-
-		BF_GLOBALS._player.setVisage(129);
-	}
-
-	BF_GLOBALS._player.updateAngle(_vechile._position);
-	BF_GLOBALS._sceneItems.push_back(&_door);
-
-	switch (BF_GLOBALS._sceneManager._previousScene) {
-	case 50:
-	case 60:
-	case 330:
-	case 370:
-		BF_GLOBALS._player.setPosition(Common::Point(251, 100));
-		BF_GLOBALS._player._strip = 3;
-		BF_GLOBALS._player.enableControl();
-		break;
-	default:
-		BF_GLOBALS._player.disableControl();
-		_sceneMode = 0;
-		setAction(&_sequenceManager, this, 3801, &BF_GLOBALS._player, &_door, NULL);
-		break;
-	}
-
-	_item1.setDetails(7, 380, 0, 1, 2, 1);
-	_item2.setDetails(9, 380, 3, 4, 5, 1);
-	_item3.setDetails(17, 380, 6, 7, 8, 1);
-	_item4.setDetails(20, 380, 9, 10, 11, 1);
-	_item5.setDetails(15, 380, 14, 15, 16, 1);
-	_item6.setDetails(4, 380, 17, 18, 19, 1);
-	_item7.setDetails(19, 380, 20, 4, 21, 1);
-	_item8.setDetails(18, 380, 22, 23, 24, 1);
-	_item9.setDetails(6, 380, 25, 26, 27, 1);
-}
-
-void Scene380::signal() {
-	switch (_sceneMode) {
-	case 1:
-		BF_GLOBALS._sceneManager.changeScene(60);
-		break;
-	case 2:
-		BF_GLOBALS._sceneManager.changeScene(385);
-		break;
-	default:
-		BF_GLOBALS._player.enableControl();
 	}
 }
 

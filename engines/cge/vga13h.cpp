@@ -126,11 +126,11 @@ bool Sprite::works(Sprite *spr) {
 	if (!spr || !spr->_ext)
 		return false;
 
-	Snail::Com *c = spr->_ext->_take;
+	CommandHandler::Command *c = spr->_ext->_take;
 	if (c != NULL) {
 		c += spr->_takePtr;
 		if (c->_ref == _ref)
-			if (c->_com != kSnLabel || (c->_val == 0 || c->_val == _vm->_now))
+			if (c->_commandType != kCmdLabel || (c->_val == 0 || c->_val == _vm->_now))
 				return true;
 	}
 
@@ -162,7 +162,7 @@ bool Sprite::seqTest(int n) {
 	return true;
 }
 
-Snail::Com *Sprite::snList(SnList type) {
+CommandHandler::Command *Sprite::snList(SnList type) {
 	SprExt *e = _ext;
 	if (e)
 		return (type == kNear) ? e->_near : e->_take;
@@ -208,8 +208,8 @@ Sprite *Sprite::expand() {
 	    maxnow = 0,
 	    maxnxt = 0;
 
-	Snail::Com *nearList = NULL;
-	Snail::Com *takeList = NULL;
+	CommandHandler::Command *nearList = NULL;
+	CommandHandler::Command *takeList = NULL;
 	_vm->mergeExt(fname, _file, kSprExt);
 	if (_vm->_resman->exist(fname)) { // sprite description file exist
 		EncryptedStream sprf(_vm, fname);
@@ -226,7 +226,7 @@ Sprite *Sprite::expand() {
 			if (len == 0 || *tmpStr == '.')
 				continue;
 
-			Snail::Com *c;
+			CommandHandler::Command *c;
 			switch (_vm->takeEnum(Comd, strtok(tmpStr, " =\t"))) {
 			case 0:
 				// Name
@@ -269,27 +269,27 @@ Sprite *Sprite::expand() {
 				// Near
 				if (_nearPtr == kNoPtr)
 					break;
-				nearList = (Snail::Com *)realloc(nearList, (nearCount + 1) * sizeof(*nearList));
+				nearList = (CommandHandler::Command *)realloc(nearList, (nearCount + 1) * sizeof(*nearList));
 				assert(nearList != NULL);
 				c = &nearList[nearCount++];
-				if ((c->_com = (SnCom)_vm->takeEnum(Snail::_comText, strtok(NULL, " \t,;/"))) < 0)
+				if ((c->_commandType = (CommandType)_vm->takeEnum(CommandHandler::_commandText, strtok(NULL, " \t,;/"))) < 0)
 					error("Bad NEAR in %d [%s]", lcnt, fname);
 				c->_ref = atoi(strtok(NULL, " \t,;/"));
 				c->_val = atoi(strtok(NULL, " \t,;/"));
-				c->_ptr = NULL;
-			break;
+				c->_spritePtr = NULL;
+				break;
 			case 4:
 				// Take
 				if (_takePtr == kNoPtr)
 					break;
-				takeList = (Snail::Com *)realloc(takeList, (takeCount + 1) * sizeof(*takeList));
+				takeList = (CommandHandler::Command *)realloc(takeList, (takeCount + 1) * sizeof(*takeList));
 				assert(takeList != NULL);
 				c = &takeList[takeCount++];
-				if ((c->_com = (SnCom)_vm->takeEnum(Snail::_comText, strtok(NULL, " \t,;/"))) < 0)
+				if ((c->_commandType = (CommandType)_vm->takeEnum(CommandHandler::_commandText, strtok(NULL, " \t,;/"))) < 0)
 					error("Bad NEAR in %d [%s]", lcnt, fname);
 				c->_ref = atoi(strtok(NULL, " \t,;/"));
 				c->_val = atoi(strtok(NULL, " \t,;/"));
-				c->_ptr = NULL;
+				c->_spritePtr = NULL;
 				break;
 			}
 		}
@@ -316,11 +316,11 @@ Sprite *Sprite::expand() {
 	setShapeList(shapeList);
 
 	if (nearList)
-		nearList[nearCount - 1]._ptr = _ext->_near = nearList;
+		nearList[nearCount - 1]._spritePtr = _ext->_near = nearList;
 	else
 		_nearPtr = kNoPtr;
 	if (takeList)
-		takeList[takeCount - 1]._ptr = _ext->_take = takeList;
+		takeList[takeCount - 1]._spritePtr = _ext->_take = takeList;
 	else
 		_takePtr = kNoPtr;
 
@@ -982,7 +982,7 @@ SceneLight::SceneLight(CGEEngine *vm) : Sprite(vm, NULL), _vm(vm) {
 	setShapeList(PR);
 }
 
-Spike::Spike(CGEEngine *vm): Sprite(vm, NULL), _vm(vm) {
+Speaker::Speaker(CGEEngine *vm): Sprite(vm, NULL), _vm(vm) {
 	// Set the sprite list
 	BitmapPtr *SP = new BitmapPtr[3];
 	SP[0] = new Bitmap(_vm, "SPK_L");
