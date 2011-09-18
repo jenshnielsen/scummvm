@@ -20,6 +20,7 @@ endif
 ifdef ENABLE_AGOS
 DEFINES += -DENABLE_AGOS=$(ENABLE_AGOS)
 MODULES += engines/agos
+endif
 
 ifdef ENABLE_AGOS2
 DEFINES += -DENABLE_AGOS2
